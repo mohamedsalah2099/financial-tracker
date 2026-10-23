@@ -1,0 +1,221 @@
+[
+    {
+        "id": "personal",
+        "label": "Personal expenses",
+        "amount": 500,
+        "currency": "USD",
+        "usdRate": 51,
+        "type": "monthly",
+        "date": "2026-10-01",
+        "monthEnd": "2027-07-01"
+    },
+    {
+        "id": "sister-uni",
+        "label": "Sister's university",
+        "amount": 1500,
+        "currency": "USD",
+        "usdRate": 51,
+        "type": "one-time",
+        "date": "2027-02-01"
+    },
+    {
+        "id": "5fd05593-7b73-4fcc-bd08-73562c456670",
+        "label": "Air conditioner",
+        "amount": 88000,
+        "currency": "EGP",
+        "usdRate": 51,
+        "type": "one-time",
+        "date": "2026-10-23",
+        "monthEnd": ""
+    },
+    {
+        "id": "13a301fa-9ed8-42dd-825a-f37ca0dd2c11",
+        "label": "Nagaf",
+        "amount": 50000,
+        "currency": "EGP",
+        "usdRate": 51,
+        "type": "one-time",
+        "date": "2026-09-27",
+        "monthEnd": ""
+    },
+    {
+        "id": "565fa649-ca41-455e-af6c-8429b061c80c",
+        "label": "Fridge",
+        "amount": 19000,
+        "currency": "EGP",
+        "usdRate": 51,
+        "type": "one-time",
+        "date": "2026-09-27",
+        "monthEnd": ""
+    },
+    {
+        "id": "06e4c863-8475-4b14-9959-5e463695d192",
+        "label": "Cook",
+        "amount": 15000,
+        "currency": "EGP",
+        "usdRate": 51,
+        "type": "one-time",
+        "date": "2026-09-28",
+        "monthEnd": ""
+    },
+    {
+        "id": "86a2c4e2-71fa-420d-bb2d-27f9b3a1dde6",
+        "label": "8assala",
+        "amount": 13000,
+        "currency": "EGP",
+        "usdRate": 51,
+        "type": "one-time",
+        "date": "2026-09-28",
+        "monthEnd": ""
+    },
+    {
+        "id": "bc133706-9911-4a5e-b61a-8d4634feb3b6",
+        "label": "8assala atba2",
+        "amount": 13000,
+        "currency": "EGP",
+        "usdRate": 51,
+        "type": "one-time",
+        "date": "2026-09-28",
+        "monthEnd": ""
+    },
+    {
+        "id": "a2c9d621-b510-405f-9827-a333caaa6c81",
+        "label": "TV",
+        "amount": 42000,
+        "currency": "EGP",
+        "usdRate": 51,
+        "type": "one-time",
+        "date": "2026-09-28",
+        "monthEnd": ""
+    },
+    {
+        "id": "31ae3bae-5366-48af-bd96-2843fc032ba5",
+        "label": "Kitchen",
+        "amount": 35000,
+        "currency": "EGP",
+        "usdRate": 51,
+        "type": "one-time",
+        "date": "2026-09-28",
+        "monthEnd": ""
+    },
+    {
+        "id": "b8fe89c0-369b-4a59-825a-2e6a4910f316",
+        "label": "Air Fryer",
+        "amount": 8000,
+        "currency": "EGP",
+        "usdRate": 51,
+        "type": "one-time",
+        "date": "2026-09-28",
+        "monthEnd": ""
+    },
+    {
+        "id": "63ac6f92-e14d-411e-a50c-fb52fe6e8757",
+        "label": "Master Room",
+        "amount": 35000,
+        "currency": "EGP",
+        "usdRate": 51,
+        "type": "one-time",
+        "date": "2026-09-28",
+        "monthEnd": ""
+    },
+    {
+        "id": "5cc4641a-7e66-490c-bbad-d37ab8482885",
+        "label": "Children Room",
+        "amount": 20000,
+        "currency": "EGP",
+        "usdRate": 51,
+        "type": "one-time",
+        "date": "2026-09-28",
+        "monthEnd": ""
+    },
+    {
+        "id": "a2616fa7-ddac-4ae4-81b9-9e43411917a0",
+        "label": "Dinning Room",
+        "amount": 25000,
+        "currency": "EGP",
+        "usdRate": 51,
+        "type": "one-time",
+        "date": "2026-09-28",
+        "monthEnd": ""
+    },
+    {
+        "id": "eb8a7022-eaac-4f07-89bb-c44ff6a2a5a6",
+        "label": "Salon",
+        "amount": 30000,
+        "currency": "EGP",
+        "usdRate": 51,
+        "type": "one-time",
+        "date": "2026-09-28",
+        "monthEnd": ""
+    },
+    {
+        "id": "9179f256-aa86-44cd-bccd-ca7cabaa8b8a",
+        "label": "Antreh",
+        "amount": 25000,
+        "currency": "EGP",
+        "usdRate": 51,
+        "type": "one-time",
+        "date": "2026-09-28",
+        "monthEnd": ""
+    },
+    {
+        "id": "62c6b85e-1ea7-4a07-93c8-d60db06c81e0",
+        "label": "Living Room",
+        "amount": 45000,
+        "currency": "EGP",
+        "usdRate": 51,
+        "type": "one-time",
+        "date": "2026-09-28",
+        "monthEnd": ""
+    },
+    {
+        "id": "f085b692-4465-4e56-8279-040ea1cb56ed",
+        "label": "Wedding",
+        "amount": 130000,
+        "currency": "EGP",
+        "usdRate": 51,
+        "type": "one-time",
+        "date": "2026-09-28",
+        "monthEnd": ""
+    },
+    {
+        "id": "a371c393-ec06-437c-8497-2386cf6cfe7d",
+        "label": "Honeymoon",
+        "amount": 150000,
+        "currency": "EGP",
+        "usdRate": 51,
+        "type": "one-time",
+        "date": "2026-09-28",
+        "monthEnd": ""
+    },
+    {
+        "id": "4d3a7431-3c73-4730-9ad3-9a64fcadedfe",
+        "label": "Birthday",
+        "amount": 70000,
+        "currency": "EGP",
+        "usdRate": 51,
+        "type": "one-time",
+        "date": "2027-01-01",
+        "monthEnd": ""
+    },
+    {
+        "id": "09bccd45-f90b-4e22-bdf3-dd0860ff75e2",
+        "label": "Home Rent",
+        "amount": 60000,
+        "currency": "EGP",
+        "usdRate": 51,
+        "type": "one-time",
+        "date": "2027-03-30",
+        "monthEnd": ""
+    },
+    {
+        "id": "4aabec5f-c518-4813-b0e2-97567100f1f6",
+        "label": "Rent",
+        "amount": 300,
+        "currency": "USD",
+        "usdRate": 51,
+        "type": "monthly",
+        "date": "2027-05-01",
+        "monthEnd": ""
+    }
+]

@@ -1,0 +1,2094 @@
+.app {
+  min-height: 100vh;
+  color: #1a1f2e;
+  background: linear-gradient(165deg, #f4f7fb 0%, #e8eef6 45%, #f9fafb 100%);
+}
+
+.hero {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 1.5rem;
+  justify-content: space-between;
+  align-items: flex-end;
+  padding: 2rem clamp(1rem, 4vw, 3rem) 1rem;
+  max-width: 1200px;
+  margin: 0 auto;
+}
+
+.eyebrow {
+  margin: 0 0 0.35rem;
+  font-size: 0.8rem;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: #5b6478;
+}
+
+.hero h1 {
+  margin: 0 0 0.5rem;
+  font-size: clamp(1.75rem, 4vw, 2.35rem);
+  line-height: 1.15;
+}
+
+.subtitle {
+  margin: 0;
+  max-width: 36rem;
+  color: #4b5568;
+  line-height: 1.5;
+}
+
+.hero-card {
+  background: #0f172a;
+  color: #f8fafc;
+  border-radius: 16px;
+  padding: 1.25rem 1.5rem;
+  min-width: min(100%, 320px);
+  box-shadow: 0 18px 40px rgba(15, 23, 42, 0.18);
+}
+
+.hero-label {
+  margin: 0;
+  font-size: 0.85rem;
+  color: #94a3b8;
+}
+
+.hero-total {
+  margin: 0.35rem 0 0.75rem;
+  font-size: 1.85rem;
+  font-weight: 700;
+}
+
+.hero-sub {
+  display: block;
+  margin-top: 0.25rem;
+  font-size: 0.8rem;
+  font-weight: 500;
+  color: #94a3b8;
+}
+
+.hero-split {
+  display: flex;
+  gap: 1rem;
+  flex-wrap: wrap;
+  font-size: 0.95rem;
+  color: #cbd5e1;
+}
+
+.layout {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 1rem;
+  padding: 0 clamp(1rem, 4vw, 3rem) 2.5rem;
+  max-width: 1200px;
+  margin: 0 auto;
+}
+
+.panel {
+  background: rgba(255, 255, 255, 0.92);
+  border: 1px solid rgba(148, 163, 184, 0.35);
+  border-radius: 14px;
+  padding: 1.25rem 1.35rem;
+  box-shadow: 0 8px 24px rgba(15, 23, 42, 0.06);
+}
+
+.panel.full {
+  grid-column: 1 / -1;
+}
+
+.panel-head {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.5rem;
+  margin-bottom: 1rem;
+}
+
+.panel h2 {
+  margin: 0;
+  font-size: 1.05rem;
+}
+
+.panel-locked {
+  opacity: 0.72;
+  background: #f1f5f9;
+  border-style: dashed;
+  pointer-events: none;
+  user-select: none;
+}
+
+.panel-active {
+  box-shadow: 0 12px 32px rgba(37, 99, 235, 0.1);
+  border-color: #93c5fd;
+}
+
+.locked-badge,
+.rate-badge {
+  font-size: 0.72rem;
+  font-weight: 600;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  padding: 0.25rem 0.55rem;
+  border-radius: 999px;
+}
+
+.locked-badge {
+  background: #e2e8f0;
+  color: #64748b;
+}
+
+.rate-badge {
+  background: #dbeafe;
+  color: #1d4ed8;
+}
+
+.rules-grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 0.65rem 1rem;
+  margin: 0;
+}
+
+.rule-item {
+  padding: 0.55rem 0.65rem;
+  border-radius: 8px;
+  background: rgba(255, 255, 255, 0.55);
+  border: 1px solid #e2e8f0;
+}
+
+.rule-item dt {
+  margin: 0 0 0.2rem;
+  font-size: 0.78rem;
+  color: #64748b;
+}
+
+.rule-item dd {
+  margin: 0;
+  font-size: 0.92rem;
+  font-weight: 600;
+  color: #334155;
+}
+
+.expense-note {
+  margin: -0.35rem 0 1rem;
+  font-size: 0.85rem;
+  line-height: 1.45;
+  color: #475569;
+}
+
+.grid.two {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 0.75rem 1rem;
+}
+
+label {
+  display: flex;
+  flex-direction: column;
+  gap: 0.35rem;
+  font-size: 0.82rem;
+  color: #475569;
+}
+
+label.checkbox {
+  flex-direction: row;
+  align-items: center;
+  grid-column: 1 / -1;
+  gap: 0.5rem;
+}
+
+input,
+select,
+button {
+  font: inherit;
+}
+
+input,
+select {
+  border: 1px solid #cbd5e1;
+  border-radius: 8px;
+  padding: 0.5rem 0.65rem;
+  background: #fff;
+  color: #0f172a;
+}
+
+button {
+  border: none;
+  border-radius: 8px;
+  padding: 0.55rem 0.85rem;
+  cursor: pointer;
+  background: #e2e8f0;
+  color: #0f172a;
+}
+
+button.primary {
+  grid-column: 1 / -1;
+  background: #2563eb;
+  color: #fff;
+  font-weight: 600;
+}
+
+button.ghost {
+  margin-top: 1rem;
+  background: transparent;
+  border: 1px dashed #94a3b8;
+}
+
+.empty-hint {
+  margin: 0 0 1rem;
+  font-size: 0.88rem;
+  color: #64748b;
+}
+
+.expense-list {
+  list-style: none;
+  margin: 0 0 1rem;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 0.65rem;
+}
+
+.expense-list li {
+  display: flex;
+  justify-content: space-between;
+  gap: 1rem;
+  align-items: center;
+  padding: 0.75rem 0.85rem;
+  border-radius: 10px;
+  background: #f8fafc;
+  border: 1px solid #e2e8f0;
+}
+
+.expense-list strong {
+  display: block;
+  margin-bottom: 0.15rem;
+}
+
+.meta {
+  font-size: 0.78rem;
+  color: #64748b;
+}
+
+.expense-actions {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  white-space: nowrap;
+}
+
+.expense-amount {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+  gap: 0.15rem;
+  text-align: right;
+}
+
+.expense-amount small {
+  font-size: 0.75rem;
+  color: #64748b;
+  font-weight: 500;
+}
+
+.egp-preview,
+.usd-preview {
+  grid-column: 1 / -1;
+  margin: 0;
+  padding: 0.65rem 0.75rem;
+  border-radius: 8px;
+  font-size: 0.85rem;
+}
+
+.egp-preview {
+  background: #eff6ff;
+  border: 1px solid #bfdbfe;
+  color: #1e3a8a;
+}
+
+.usd-preview {
+  background: #f0fdf4;
+  border: 1px solid #bbf7d0;
+  color: #166534;
+}
+
+@media (max-width: 900px) {
+  .rules-grid {
+    grid-template-columns: 1fr;
+  }
+}
+
+.table-wrap {
+  overflow-x: auto;
+}
+
+table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 0.86rem;
+}
+
+th,
+td {
+  padding: 0.55rem 0.65rem;
+  border-bottom: 1px solid #e2e8f0;
+  text-align: left;
+}
+
+th {
+  font-size: 0.75rem;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  color: #64748b;
+}
+
+td.num {
+  text-align: right;
+  font-variant-numeric: tabular-nums;
+}
+
+td.total {
+  font-weight: 600;
+}
+
+tr.salary td:first-child {
+  color: #047857;
+}
+
+tr.expense td:first-child {
+  color: #b45309;
+}
+
+@media (max-width: 900px) {
+  .layout {
+    grid-template-columns: 1fr;
+  }
+
+  .grid.two {
+    grid-template-columns: 1fr;
+  }
+}
+
+.rate-input {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.35rem;
+  font-size: 0.85rem;
+  white-space: nowrap;
+}
+
+.rate-input input {
+  width: 5.5rem;
+}
+
+.wish-bar {
+  display: flex;
+  align-items: center;
+  gap: 0.25rem;
+  padding: 0.3rem;
+  border: 1px solid #cbd5e1;
+  border-radius: 999px;
+  background: #fff;
+  box-shadow: 0 2px 8px rgba(15, 23, 42, 0.04);
+  transition: border-color 0.15s, box-shadow 0.15s;
+}
+
+.wish-bar:focus-within {
+  border-color: #60a5fa;
+  box-shadow: 0 0 0 4px rgba(37, 99, 235, 0.12);
+}
+
+.wish-bar input {
+  min-width: 0;
+  border: none;
+  background: transparent;
+  padding: 0.45rem 0.75rem;
+  outline: none;
+}
+
+.wish-item {
+  flex: 2;
+}
+
+.wish-price {
+  flex: 1.3;
+  display: flex;
+  align-items: center;
+  min-width: 0;
+  border-inline: 1px solid #e2e8f0;
+}
+
+.wish-price input {
+  flex: 1;
+  font-variant-numeric: tabular-nums;
+}
+
+.wish-currency {
+  display: flex;
+  padding: 2px;
+  margin-right: 0.4rem;
+  border-radius: 999px;
+  background: #f1f5f9;
+}
+
+.wish-currency button {
+  padding: 0.2rem 0.55rem;
+  border-radius: 999px;
+  background: transparent;
+  color: #64748b;
+  font-size: 0.72rem;
+  font-weight: 600;
+  letter-spacing: 0.03em;
+}
+
+.wish-currency button.active {
+  background: #fff;
+  color: #1d4ed8;
+  box-shadow: 0 1px 3px rgba(15, 23, 42, 0.12);
+}
+
+.wish-add {
+  flex: none;
+  width: 2.25rem;
+  height: 2.25rem;
+  padding: 0;
+  border-radius: 50%;
+  background: #2563eb;
+  color: #fff;
+  font-size: 1.3rem;
+  line-height: 1;
+  transition: background 0.15s, transform 0.1s;
+}
+
+.wish-add:hover:not(:disabled) {
+  background: #1d4ed8;
+}
+
+.wish-add:active:not(:disabled) {
+  transform: scale(0.94);
+}
+
+.wish-add:disabled {
+  background: #cbd5e1;
+  cursor: default;
+}
+
+@media (max-width: 700px) {
+  .wish-bar {
+    flex-wrap: wrap;
+    border-radius: 14px;
+  }
+
+  .wish-item {
+    flex: 1 1 100%;
+  }
+
+  .wish-price {
+    flex: 1;
+    border-inline: none;
+    border-block: 1px solid #e2e8f0;
+  }
+}
+
+.wish-list {
+  list-style: none;
+  margin: 0 0 0.85rem;
+  padding: 0.25rem;
+  border: 1px solid #e2e8f0;
+  border-radius: 12px;
+  background: #f8fafc;
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.wish-list li {
+  display: flex;
+  align-items: center;
+  gap: 0.65rem;
+  padding: 0.4rem 0.4rem 0.4rem 0.65rem;
+  border-radius: 8px;
+  transition: background 0.12s;
+}
+
+.wish-list li:hover,
+.wish-list li:focus-within {
+  background: #fff;
+  box-shadow: 0 1px 3px rgba(15, 23, 42, 0.06);
+}
+
+.wish-dot {
+  flex: none;
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  background: #93c5fd;
+}
+
+.wish-text {
+  flex: 1;
+  min-width: 0;
+  display: flex;
+  align-items: baseline;
+  gap: 0.5rem;
+}
+
+.wish-name {
+  font-size: 0.9rem;
+  font-weight: 600;
+  color: #0f172a;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+.wish-amount {
+  flex: none;
+  padding: 0.15rem 0.5rem;
+  border-radius: 999px;
+  font-size: 0.78rem;
+  font-weight: 600;
+  font-variant-numeric: tabular-nums;
+}
+
+.wish-amount.egp {
+  background: #eff6ff;
+  color: #1d4ed8;
+}
+
+.wish-amount.usd {
+  background: #f0fdf4;
+  color: #15803d;
+}
+
+.wish-actions {
+  flex: none;
+  display: flex;
+  gap: 2px;
+  opacity: 0.35;
+  transition: opacity 0.12s;
+}
+
+.wish-list li:hover .wish-actions,
+.wish-list li:focus-within .wish-actions {
+  opacity: 1;
+}
+
+.wish-icon {
+  width: 1.75rem;
+  height: 1.75rem;
+  padding: 0;
+  border-radius: 6px;
+  background: transparent;
+  color: #475569;
+  font-size: 1rem;
+  line-height: 1;
+}
+
+.wish-icon:hover {
+  background: #e0e7ff;
+  color: #1d4ed8;
+}
+
+.wish-icon.danger:hover {
+  background: #fee2e2;
+  color: #b91c1c;
+}
+
+@media (hover: none) {
+  .wish-actions {
+    opacity: 1;
+  }
+}
+
+/* Expenses span two rows so the future-purchases box tucks under the rules. */
+.layout {
+  align-items: start;
+}
+
+.panel-active {
+  grid-row: span 2;
+}
+
+.wish-whatif {
+  margin: 0 0 0.85rem;
+  padding: 0.65rem 0.8rem;
+  border: 1px dashed #c7d2fe;
+  border-radius: 12px;
+  background: #f5f7ff;
+}
+
+.wish-whatif-title {
+  margin: 0 0 0.45rem;
+  font-size: 0.7rem;
+  font-weight: 600;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: #6366f1;
+}
+
+.wish-whatif dl {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 0.5rem;
+  margin: 0;
+}
+
+.wish-whatif dt {
+  font-size: 0.72rem;
+  color: #64748b;
+}
+
+.wish-whatif dd {
+  margin: 0.1rem 0 0;
+  font-size: 0.95rem;
+  font-weight: 700;
+  color: #0f172a;
+  font-variant-numeric: tabular-nums;
+}
+
+.wish-whatif dd.neg {
+  color: #b91c1c;
+}
+
+.wish-whatif-note {
+  margin: 0.45rem 0 0;
+  font-size: 0.72rem;
+  color: #94a3b8;
+}
+
+@media (max-width: 480px) {
+  .wish-whatif dl {
+    grid-template-columns: 1fr;
+  }
+}
+
+/* Extra income: reuses the compact wish-list / wish-bar styles in green. */
+.panel-active {
+  grid-row: span 3;
+}
+
+.income-badge {
+  font-size: 0.72rem;
+  font-weight: 600;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  padding: 0.25rem 0.55rem;
+  border-radius: 999px;
+  background: #dcfce7;
+  color: #15803d;
+}
+
+.wish-dot.income {
+  background: #4ade80;
+}
+
+.wish-amount.income {
+  background: #f0fdf4;
+  color: #15803d;
+}
+
+.income-date {
+  flex: none;
+  font-size: 0.75rem;
+  color: #94a3b8;
+  font-variant-numeric: tabular-nums;
+}
+
+.income-bar:focus-within {
+  border-color: #4ade80;
+  box-shadow: 0 0 0 4px rgba(22, 163, 74, 0.12);
+}
+
+.income-bar .wish-item {
+  flex: 1.5;
+}
+
+.income-date-input {
+  flex: none;
+  width: 8.5rem;
+  padding-inline: 0.5rem;
+  color: #475569;
+  font-size: 0.85rem;
+}
+
+.wish-add.income {
+  background: #16a34a;
+}
+
+.wish-add.income:hover:not(:disabled) {
+  background: #15803d;
+}
+
+.wish-add.income:disabled {
+  background: #cbd5e1;
+}
+
+.panel-income .wish-whatif-note {
+  margin-top: 0.5rem;
+}
+
+tr.income td:first-child {
+  color: #15803d;
+}
+
+/* Income dated after today: not received yet. */
+.wish-list li.upcoming {
+  background: repeating-linear-gradient(
+    -45deg,
+    #fffbeb,
+    #fffbeb 6px,
+    #fef3c7 6px,
+    #fef3c7 12px
+  );
+  outline: 1px dashed #f59e0b;
+  outline-offset: -1px;
+}
+
+.wish-list li.upcoming .wish-dot {
+  background: transparent;
+  border: 1.5px solid #f59e0b;
+}
+
+.wish-list li.upcoming .wish-amount {
+  background: #fff;
+  color: #b45309;
+}
+
+.wish-list li.upcoming .income-date {
+  color: #b45309;
+  font-weight: 600;
+}
+
+.upcoming-tag {
+  flex: none;
+  padding: 0.05rem 0.4rem;
+  border-radius: 999px;
+  background: #f59e0b;
+  color: #fff;
+  font-size: 0.65rem;
+  font-weight: 700;
+  letter-spacing: 0.05em;
+  text-transform: uppercase;
+}
+
+.export-btn {
+  padding: 0.35rem 0.75rem;
+  border: 1px solid #cbd5e1;
+  border-radius: 999px;
+  background: #fff;
+  color: #1d4ed8;
+  font-size: 0.8rem;
+  font-weight: 600;
+  transition: background 0.15s, border-color 0.15s;
+}
+
+.export-btn:hover {
+  background: #eff6ff;
+  border-color: #93c5fd;
+}
+
+/* Dream income: aspirational, never counted. Dreamy violet take on the wish styles. */
+.panel-active {
+  grid-row: span 4;
+}
+
+.panel-dreams {
+  background: linear-gradient(160deg, #faf5ff 0%, #ffffff 55%, #fdf4ff 100%);
+  border-color: #e9d5ff;
+}
+
+.dream-badge {
+  font-size: 0.72rem;
+  font-weight: 600;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  padding: 0.25rem 0.55rem;
+  border-radius: 999px;
+  background: #f3e8ff;
+  color: #7e22ce;
+}
+
+.dream-list {
+  background: rgba(250, 245, 255, 0.7);
+  border-color: #ede9fe;
+}
+
+.dream-star {
+  flex: none;
+  font-size: 0.75rem;
+  color: #c084fc;
+}
+
+.wish-amount.dream {
+  background: linear-gradient(90deg, #f3e8ff, #fce7f3);
+  color: #7e22ce;
+}
+
+.dream-whatif {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: baseline;
+  gap: 0.35rem 0.6rem;
+  margin: 0 0 0.85rem;
+  padding: 0.55rem 0.8rem;
+  border: 1px dashed #d8b4fe;
+  border-radius: 12px;
+  font-size: 0.78rem;
+  color: #6b21a8;
+}
+
+.dream-whatif strong {
+  font-size: 1rem;
+  font-variant-numeric: tabular-nums;
+}
+
+.dream-whatif small {
+  color: #a78bfa;
+}
+
+.dream-bar:focus-within {
+  border-color: #c084fc;
+  box-shadow: 0 0 0 4px rgba(168, 85, 247, 0.12);
+}
+
+.wish-add.dream {
+  background: linear-gradient(135deg, #a855f7, #ec4899);
+}
+
+.wish-add.dream:hover:not(:disabled) {
+  background: linear-gradient(135deg, #9333ea, #db2777);
+}
+
+.wish-add.dream:disabled {
+  background: #cbd5e1;
+}
+
+/* Financial forecast — projected (series 1, blue) vs actual (series 2, orange). */
+.panel-forecast {
+  --fc-projected: #2a78d6;
+  --fc-actual: #eb6834;
+  --fc-ink: #0f172a;
+  --fc-muted: #64748b;
+}
+
+.fc-tiles {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 0.75rem;
+  margin-bottom: 1rem;
+}
+
+.fc-tile {
+  display: flex;
+  flex-direction: column;
+  gap: 0.15rem;
+  padding: 0.75rem 0.9rem;
+  border: 1px solid #e2e8f0;
+  border-radius: 12px;
+  background: #f8fafc;
+}
+
+.fc-tile span {
+  font-size: 0.75rem;
+  color: var(--fc-muted);
+}
+
+.fc-tile strong {
+  font-size: 1.35rem;
+  color: var(--fc-ink);
+  font-variant-numeric: tabular-nums;
+}
+
+.fc-tile small {
+  font-size: 0.75rem;
+  color: var(--fc-muted);
+}
+
+.fc-tile.lowest {
+  border-color: #fde68a;
+  background: #fffbeb;
+}
+
+.fc-tile.drop {
+  border-color: #fecaca;
+  background: #fef2f2;
+}
+
+.forecast-chart {
+  position: relative;
+  margin-bottom: 1rem;
+}
+
+.forecast-chart svg {
+  display: block;
+  overflow: visible;
+  cursor: crosshair;
+}
+
+.forecast-legend {
+  display: flex;
+  gap: 1rem;
+  margin-bottom: 0.25rem;
+  font-size: 0.78rem;
+  color: var(--fc-muted);
+}
+
+.forecast-legend span,
+.fc-tooltip span {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.4rem;
+}
+
+.key-line {
+  display: inline-block;
+  width: 14px;
+  height: 2px;
+  border-radius: 1px;
+}
+
+.key-line.projected {
+  background: var(--fc-projected);
+}
+
+.key-line.actual {
+  background: var(--fc-actual);
+}
+
+.fc-grid {
+  stroke: #e2e8f0;
+  stroke-width: 1;
+}
+
+.fc-zero {
+  stroke: #94a3b8;
+  stroke-width: 1;
+}
+
+.fc-axis {
+  font-size: 11px;
+  fill: var(--fc-muted);
+  font-variant-numeric: tabular-nums;
+}
+
+.fc-area {
+  fill: var(--fc-projected);
+  opacity: 0.08;
+}
+
+.fc-line {
+  fill: none;
+  stroke-width: 2;
+  stroke-linejoin: round;
+  stroke-linecap: round;
+}
+
+.fc-line.projected {
+  stroke: var(--fc-projected);
+}
+
+.fc-line.actual {
+  stroke: var(--fc-actual);
+}
+
+.fc-dot {
+  stroke: #fff;
+  stroke-width: 2;
+  transition: r 0.1s;
+}
+
+.fc-dot.projected {
+  fill: var(--fc-projected);
+}
+
+.fc-dot.actual {
+  fill: var(--fc-actual);
+}
+
+.fc-crosshair {
+  stroke: #94a3b8;
+  stroke-width: 1;
+  stroke-dasharray: 3 3;
+}
+
+.fc-lowest circle {
+  fill: none;
+  stroke: var(--fc-ink);
+  stroke-width: 1.5;
+  stroke-dasharray: 2 2;
+}
+
+.fc-lowest text {
+  font-size: 11px;
+  font-weight: 600;
+  fill: var(--fc-ink);
+}
+
+.fc-tooltip {
+  position: absolute;
+  transform: translateX(-50%);
+  display: flex;
+  flex-direction: column;
+  gap: 0.2rem;
+  min-width: 170px;
+  padding: 0.5rem 0.65rem;
+  border: 1px solid #e2e8f0;
+  border-radius: 10px;
+  background: rgba(255, 255, 255, 0.97);
+  box-shadow: 0 8px 24px rgba(15, 23, 42, 0.12);
+  font-size: 0.78rem;
+  color: var(--fc-muted);
+  pointer-events: none;
+}
+
+.fc-tooltip strong {
+  color: var(--fc-ink);
+  font-size: 0.82rem;
+}
+
+.fc-tooltip b {
+  margin-left: auto;
+  padding-left: 0.75rem;
+  color: var(--fc-ink);
+  font-variant-numeric: tabular-nums;
+}
+
+.fc-tooltip span {
+  display: flex;
+}
+
+.fc-tooltip-diff {
+  padding-left: calc(14px + 0.4rem);
+}
+
+.fc-table td.pos {
+  color: #15803d;
+}
+
+.fc-table td.neg {
+  color: #b91c1c;
+}
+
+.fc-table tr.is-lowest td {
+  background: #fffbeb;
+}
+
+.fc-table tr.is-drop td {
+  background: #fef2f2;
+}
+
+.fc-tag {
+  display: inline-block;
+  margin-left: 0.4rem;
+  padding: 0.05rem 0.4rem;
+  border-radius: 999px;
+  font-size: 0.65rem;
+  font-weight: 700;
+  letter-spacing: 0.03em;
+  text-transform: uppercase;
+  vertical-align: 1px;
+}
+
+.fc-tag.lowest {
+  background: #fef3c7;
+  color: #92400e;
+}
+
+.fc-tag.drop {
+  background: #fee2e2;
+  color: #991b1b;
+}
+
+.fc-tag.wedding {
+  background: #fce7f3;
+  color: #9d174d;
+}
+
+.fc-actual-input {
+  width: 7.5rem;
+  padding: 0.3rem 0.5rem;
+  border-color: #e2e8f0;
+  border-radius: 6px;
+  text-align: right;
+  font-variant-numeric: tabular-nums;
+}
+
+.fc-actual-input:focus {
+  outline: none;
+  border-color: var(--fc-actual);
+  box-shadow: 0 0 0 3px rgba(235, 104, 52, 0.15);
+}
+
+@media (max-width: 700px) {
+  .fc-tiles {
+    grid-template-columns: 1fr;
+  }
+}
+
+/* Home / car purchase forecast */
+.purchase-toggle {
+  display: inline-flex;
+  gap: 0.25rem;
+  padding: 0.2rem;
+  border-radius: 999px;
+  background: #f1f5f9;
+  margin-right: auto;
+}
+
+.purchase-toggle button {
+  padding: 0.3rem 0.8rem;
+  border-radius: 999px;
+  background: transparent;
+  font-size: 0.82rem;
+  font-weight: 600;
+  color: #64748b;
+}
+
+.purchase-toggle button.active {
+  background: #fff;
+  color: #0f172a;
+  box-shadow: 0 1px 2px rgb(15 23 42 / 0.12);
+}
+
+.home-inputs {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 0.75rem;
+  align-content: start;
+}
+
+.home-range {
+  display: flex;
+  align-items: center;
+  gap: 0.4rem;
+  color: #94a3b8;
+}
+
+.home-range input {
+  flex: 1;
+  min-width: 0;
+}
+
+.home-verdict {
+  margin: 0;
+  padding: 0.85rem 1rem;
+  border-radius: 12px;
+  border: 1px solid;
+}
+
+.home-verdict.yes {
+  background: #f0fdf4;
+  border-color: #bbf7d0;
+  color: #14532d;
+}
+
+.home-verdict.no {
+  background: #fff7ed;
+  border-color: #fed7aa;
+  color: #7c2d12;
+}
+
+.home-verdict strong {
+  font-size: 1rem;
+}
+
+.home-verdict p {
+  margin: 0.35rem 0 0;
+  font-size: 0.88rem;
+  line-height: 1.5;
+}
+
+.home-verdict ul {
+  margin: 0.5rem 0 0;
+  padding-left: 1.1rem;
+  font-size: 0.85rem;
+  line-height: 1.6;
+}
+
+@media (max-width: 700px) {
+  .home-inputs {
+    grid-template-columns: 1fr 1fr;
+  }
+}
+
+/* ---------- Layout: two independent columns, no stretched row gaps ---------- */
+.col-stack {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+  min-width: 0;
+}
+
+.panel-active {
+  grid-row: auto;
+}
+
+@media (min-width: 901px) {
+  .col-sticky {
+    position: sticky;
+    top: calc(1rem + env(safe-area-inset-top, 0px));
+  }
+}
+
+/* Compact expense rows (reuse wish-list rows) with a capped, scrollable list. */
+.expense-compact {
+  max-height: 520px;
+  overflow-y: auto;
+  scrollbar-width: thin;
+}
+
+.wish-dot.expense {
+  background: #fdba74;
+}
+
+.wish-dot.monthly {
+  background: #a78bfa;
+}
+
+.exp-text {
+  flex: 1;
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+}
+
+.exp-meta {
+  font-size: 0.72rem;
+  color: #94a3b8;
+  font-variant-numeric: tabular-nums;
+}
+
+.exp-amount {
+  flex: none;
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+  font-variant-numeric: tabular-nums;
+}
+
+.exp-amount b {
+  font-size: 0.85rem;
+}
+
+.exp-amount small {
+  font-size: 0.7rem;
+  color: #94a3b8;
+}
+
+/* ---------- Home forecast: inputs beside verdict, month tiles in a grid ---------- */
+.home-top {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) minmax(0, 1.4fr);
+  gap: 1rem;
+  margin-bottom: 1rem;
+}
+
+.home-months {
+  list-style: none;
+  margin: 0 0 0.75rem;
+  padding: 0;
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
+  gap: 0.5rem;
+}
+
+.home-months li {
+  display: grid;
+  grid-template-columns: 1fr auto;
+  gap: 0.35rem 0.5rem;
+  padding: 0.55rem 0.65rem;
+  border: 1px solid #e2e8f0;
+  border-radius: 10px;
+  background: #fff;
+}
+
+.home-months li.in-window {
+  background: #f1f5f9;
+  border-color: #cbd5e1;
+}
+
+.home-months li.best {
+  background: #dcfce7;
+  border-color: #16a34a;
+  box-shadow: 0 0 0 1px #16a34a;
+}
+
+.home-month {
+  display: flex;
+  align-items: baseline;
+  gap: 0.3rem;
+  font-size: 0.82rem;
+}
+
+.home-month small {
+  color: #94a3b8;
+  font-size: 0.7rem;
+}
+
+.home-bar {
+  grid-column: 1 / -1;
+  position: relative;
+  height: 6px;
+  border-radius: 3px;
+  background: #e2e8f0;
+}
+
+.home-bar-fill {
+  position: absolute;
+  inset: 0 auto 0 0;
+  border-radius: 3px;
+  background: #f97316;
+}
+
+.home-months li.ok .home-bar-fill {
+  background: #16a34a;
+}
+
+.home-bar-limit {
+  position: absolute;
+  top: -3px;
+  bottom: -3px;
+  width: 2px;
+  margin-left: -1px;
+  border-radius: 1px;
+  background: #0f172a;
+}
+
+.home-total {
+  grid-column: 1 / -1;
+  font-size: 0.75rem;
+  color: #64748b;
+  font-variant-numeric: tabular-nums;
+}
+
+.home-status {
+  font-size: 0.75rem;
+  font-weight: 700;
+  font-variant-numeric: tabular-nums;
+}
+
+.home-status.ok {
+  color: #15803d;
+}
+
+.home-status.no {
+  color: #c2410c;
+}
+
+/* ---------- Financial forecast: tiles beside the chart ---------- */
+@media (min-width: 901px) {
+  .fc-body {
+    display: grid;
+    grid-template-columns: 220px minmax(0, 1fr);
+    gap: 1rem;
+    align-items: start;
+  }
+
+  .fc-body .fc-tiles {
+    grid-template-columns: 1fr;
+    margin-bottom: 0;
+  }
+}
+
+.fc-table td,
+.fc-table th {
+  padding-block: 0.4rem;
+}
+
+/* ---------- Cash-flow timeline: grouped, capped height, sticky header ---------- */
+.ledger-scroll {
+  max-height: 560px;
+  overflow: auto;
+  border: 1px solid #e2e8f0;
+  border-radius: 10px;
+}
+
+.ledger-table thead th {
+  position: sticky;
+  top: 0;
+  z-index: 2;
+  background: #f8fafc;
+  box-shadow: inset 0 -1px 0 #e2e8f0;
+}
+
+.ledger-table td {
+  padding-block: 0.4rem;
+}
+
+.ledger-table .col-day {
+  width: 3rem;
+  color: #94a3b8;
+  font-variant-numeric: tabular-nums;
+}
+
+.ledger-month th {
+  position: sticky;
+  top: 2.1rem;
+  z-index: 1;
+  padding-block: 0.45rem;
+  background: #eef2f7;
+  color: #0f172a;
+  font-size: 0.8rem;
+  text-transform: none;
+  letter-spacing: 0;
+  text-align: left;
+}
+
+.ledger-month th.num {
+  text-align: right;
+  font-variant-numeric: tabular-nums;
+}
+
+.ledger-month small {
+  margin-left: 0.5rem;
+  font-weight: 500;
+  color: #94a3b8;
+}
+
+.ledger-month .pos,
+.ledger-table td.pos {
+  color: #15803d;
+}
+
+.ledger-month .neg,
+.ledger-table td.neg {
+  color: #b91c1c;
+}
+
+.ledger-name {
+  display: block;
+}
+
+.ledger-detail {
+  display: block;
+  font-size: 0.72rem;
+  color: #94a3b8;
+}
+
+.ledger-table tr.salary td:first-child,
+.ledger-table tr.expense td:first-child,
+.ledger-table tr.income td:first-child {
+  color: #94a3b8;
+}
+
+.ledger-table tr.salary .ledger-name::before,
+.ledger-table tr.income .ledger-name::before,
+.ledger-table tr.expense .ledger-name::before {
+  content: '';
+  display: inline-block;
+  width: 6px;
+  height: 6px;
+  margin-right: 0.5rem;
+  border-radius: 50%;
+  vertical-align: 2px;
+}
+
+.ledger-table tr.salary .ledger-name::before {
+  background: #16a34a;
+}
+
+.ledger-table tr.income .ledger-name::before {
+  background: #4ade80;
+}
+
+.ledger-table tr.expense .ledger-name::before {
+  background: #fdba74;
+}
+
+@media (max-width: 900px) {
+  .home-top {
+    grid-template-columns: 1fr;
+  }
+}
+
+.ledger-table tr:not(.opening) .ledger-detail {
+  padding-left: calc(6px + 0.5rem);
+}
+
+/* Let grid children shrink below their content (wide tables scroll inside instead). */
+.layout > * {
+  min-width: 0;
+}
+
+/* ---------- Page: main column + fixed (sticky) expenses sidebar ---------- */
+.layout {
+  grid-template-columns: minmax(0, 1fr) 400px;
+  max-width: 1480px;
+}
+
+.hero {
+  max-width: 1480px;
+}
+
+.main-col {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+  min-width: 0;
+}
+
+/* Rules on the left, the three small lists stacked on the right. */
+.main-col > .col-stack {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  align-items: start;
+}
+
+.main-col > .col-stack > .panel-locked {
+  grid-row: span 3;
+}
+
+.sidebar {
+  min-width: 0;
+}
+
+.sidebar .panel-active {
+  position: sticky;
+  top: calc(1rem + env(safe-area-inset-top, 0px));
+  display: flex;
+  flex-direction: column;
+  max-height: calc(100vh - 2rem - env(safe-area-inset-top, 0px));
+}
+
+/* The list absorbs the leftover height and scrolls; the form stays visible. */
+.sidebar .expense-compact {
+  flex: 1 1 auto;
+  min-height: 120px;
+  max-height: none;
+}
+
+@media (max-width: 1100px) {
+  .main-col > .col-stack {
+    grid-template-columns: 1fr;
+  }
+
+  .main-col > .col-stack > .panel-locked {
+    grid-row: auto;
+  }
+}
+
+@media (max-width: 900px) {
+  .layout {
+    display: flex;
+    flex-direction: column;
+  }
+
+  /* Phone: rules & lists, then expenses, then forecasts and timeline. */
+  .main-col {
+    display: contents;
+  }
+
+  .main-col > :not(.col-stack) {
+    order: 2;
+  }
+
+  .sidebar {
+    order: 1;
+  }
+
+  .sidebar .panel-active {
+    position: static;
+    max-height: none;
+  }
+
+  .sidebar .expense-compact {
+    max-height: 420px;
+  }
+}
+
+/* Compact add-bars wrap based on their panel's width, not the viewport's. */
+.panel-wish,
+.panel-income,
+.panel-dreams {
+  container-type: inline-size;
+}
+
+@container (max-width: 470px) {
+  .wish-bar {
+    flex-wrap: wrap;
+    border-radius: 14px;
+  }
+
+  .wish-bar .wish-item {
+    flex: 1 1 100%;
+    border-bottom: 1px solid #e2e8f0;
+  }
+
+  .wish-bar .wish-price {
+    flex: 1 1 0;
+    border-inline: none;
+  }
+
+  .income-bar .income-date-input {
+    border-left: 1px solid #e2e8f0;
+  }
+}
+
+td.num,
+th.num {
+  white-space: nowrap;
+}
+
+/* Top block: rules | future purchases, then extra income | dream income. */
+.main-col > .col-stack {
+  align-items: stretch;
+}
+
+.main-col > .col-stack > .panel-locked {
+  grid-row: auto;
+}
+
+@media (max-width: 1100px) {
+  .main-col > .col-stack {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
+  .main-col > .col-stack > .panel-locked,
+  .main-col > .col-stack > .panel-wish {
+    grid-column: 1 / -1;
+  }
+}
+
+@media (max-width: 640px) {
+  .main-col > .col-stack {
+    grid-template-columns: 1fr;
+  }
+}
+
+/* Future purchases: fixed height; the list scrolls, search + form stay put. */
+.panel-wish {
+  display: flex;
+  flex-direction: column;
+  height: 480px;
+}
+
+/* Desktop: don't let the list size the row — fill the height set by the rules panel. */
+@media (min-width: 1201px) {
+  .main-col > .col-stack > .panel-wish {
+    height: auto;
+    min-height: 420px;
+    contain: size;
+  }
+}
+
+.panel-wish .wish-scroll {
+  flex: 1 1 auto;
+  min-height: 60px;
+  overflow-y: auto;
+  scrollbar-width: thin;
+}
+
+.panel-wish .wish-list.wish-scroll {
+  align-content: start;
+}
+
+.wish-search {
+  flex: none;
+  margin-bottom: 0.6rem;
+  padding: 0.45rem 0.75rem 0.45rem 2rem;
+  border-radius: 999px;
+  background: #f8fafc
+    url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='14' height='14' fill='none' stroke='%2394a3b8' stroke-width='2' stroke-linecap='round'%3E%3Ccircle cx='6' cy='6' r='4.5'/%3E%3Cpath d='M9.5 9.5 13 13'/%3E%3C/svg%3E")
+    no-repeat 0.75rem center;
+  font-size: 0.85rem;
+}
+
+.wish-search:focus {
+  outline: none;
+  border-color: #60a5fa;
+  background-color: #fff;
+  box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.12);
+}
+
+.panel-wish .wish-whatif,
+.panel-wish .wish-bar {
+  flex: none;
+}
+
+.panel-wish .wish-whatif {
+  margin: 0.6rem 0;
+  padding: 0.45rem 0.7rem;
+}
+
+.panel-wish .wish-whatif-title {
+  margin-bottom: 0.25rem;
+}
+
+.panel-wish .wish-whatif-note {
+  margin-top: 0.2rem;
+}
+
+/* Forecasts + timeline span the full page width under the two-column block. */
+.layout > .panel.full {
+  grid-column: 1 / -1;
+}
+
+/* Sidebar fills the top block's height so its panel can stay pinned through it. */
+.sidebar {
+  align-self: stretch;
+}
+
+@media (max-width: 900px) {
+  .layout > .panel.full {
+    order: 2;
+  }
+}
+
+/* Desktop: the expenses sidebar matches the left block's height instead of
+   setting it; its list scrolls inside. Left panels stretch to fill the row. */
+@media (min-width: 901px) {
+  .sidebar {
+    contain: size;
+    min-height: 620px;
+  }
+
+  .sidebar .panel-active {
+    position: static;
+    height: 100%;
+    max-height: none;
+    box-sizing: border-box;
+  }
+
+  .main-col {
+    display: flex;
+    flex-direction: column;
+  }
+
+  .main-col > .col-stack {
+    flex: 1;
+  }
+}
+
+/* Expense list: natural height; only shrinks (and scrolls) once it would
+   push the form past the panel's height. */
+.sidebar .expense-compact {
+  flex: 0 1 auto;
+  min-height: 0;
+}
+
+/* Pin the add-expense form to the bottom of the panel; the list stays on top. */
+.sidebar .panel-active .add-form {
+  margin-top: auto;
+  padding-top: 0.85rem;
+  border-top: 1px solid #e2e8f0;
+}
+
+.sidebar .wish-search {
+  flex: none;
+}
+
+/* ---------- Hero intro ---------- */
+.hero-intro {
+  flex: 1 1 32rem;
+  max-width: 44rem;
+}
+
+.hero .eyebrow {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 0.6rem;
+}
+
+.countdown {
+  padding: 0.2rem 0.6rem;
+  border-radius: 999px;
+  background: #fce7f3;
+  color: #9d174d;
+  font-size: 0.72rem;
+  font-weight: 700;
+  letter-spacing: 0.04em;
+}
+
+.hero h1 {
+  margin-bottom: 0.4rem;
+  letter-spacing: -0.01em;
+}
+
+.hero h1 em {
+  font-style: normal;
+  background: linear-gradient(90deg, #2563eb, #db2777);
+  -webkit-background-clip: text;
+  background-clip: text;
+  color: transparent;
+}
+
+.hero .subtitle {
+  margin-bottom: 0.9rem;
+  font-size: 1rem;
+}
+
+.hero-rules {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+}
+
+.hero-rules li {
+  display: flex;
+  align-items: flex-start;
+  gap: 0.45rem;
+  max-width: 19rem;
+  padding: 0.45rem 0.7rem;
+  border: 1px solid #e2e8f0;
+  border-radius: 10px;
+  background: rgba(255, 255, 255, 0.7);
+  font-size: 0.8rem;
+  line-height: 1.4;
+  color: #64748b;
+}
+
+.hero-rules b {
+  color: #0f172a;
+  font-weight: 600;
+}
+
+.hero-intro {
+  max-width: 58rem;
+}
+
+.hero-rules {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+}
+
+.hero-rules li {
+  max-width: none;
+}
+
+@media (max-width: 700px) {
+  .hero-rules {
+    grid-template-columns: 1fr;
+  }
+}
+
+/* Phone/tablet single column: panels take the column width, never their content's. */
+@media (max-width: 900px) {
+  .layout {
+    align-items: stretch;
+  }
+}
+
+/* ---------- Responsive polish ---------- */
+
+/* Form controls never force their grid/flex cell wider than it is. */
+.grid.two > *,
+.home-inputs > *,
+.home-inputs input,
+.grid.two input,
+.grid.two select {
+  min-width: 0;
+  max-width: 100%;
+}
+
+@media (max-width: 640px) {
+  .hero {
+    padding-top: 1.25rem;
+  }
+
+  .hero h1 {
+    font-size: 1.6rem;
+  }
+
+  .hero .subtitle {
+    font-size: 0.92rem;
+  }
+
+  .hero-card {
+    width: 100%;
+    box-sizing: border-box;
+  }
+
+  .panel {
+    padding: 1rem;
+  }
+
+  .panel-head {
+    margin-bottom: 0.75rem;
+  }
+
+  .rules-grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 0.5rem;
+  }
+
+  .fc-tiles {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    gap: 0.4rem;
+  }
+
+  .fc-tile {
+    padding: 0.5rem 0.55rem;
+  }
+
+  .fc-tile strong {
+    font-size: 0.95rem;
+  }
+
+  .fc-tile span,
+  .fc-tile small {
+    font-size: 0.68rem;
+  }
+
+  .home-months {
+    grid-template-columns: repeat(auto-fill, minmax(120px, 1fr));
+  }
+}
+
+@media (max-width: 480px) {
+  .home-inputs {
+    grid-template-columns: 1fr;
+  }
+
+  .rules-grid {
+    grid-template-columns: 1fr 1fr;
+  }
+
+  .fc-tiles {
+    grid-template-columns: 1fr;
+  }
+
+  .wish-whatif dl {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    gap: 0.35rem;
+  }
+
+  .wish-whatif dd {
+    font-size: 0.82rem;
+  }
+}
+
+/* Income rows: date + "Upcoming" tag sit under the name, so the name never collapses. */
+.wish-list .income-date {
+  display: flex;
+  align-items: center;
+  gap: 0.4rem;
+  font-size: 0.72rem;
+}
+
+.wish-list .income-date .upcoming-tag {
+  font-size: 0.6rem;
+}
+
+/* Forecast table on phones: drop the in/out breakdown (Change still shows the net). */
+@media (max-width: 640px) {
+  .fc-table .col-flow {
+    display: none;
+  }
+
+  .fc-table td:first-child {
+    white-space: nowrap;
+  }
+
+  .fc-table .fc-tag {
+    display: none;
+  }
+
+  .fc-table tr.is-lowest td:first-child::after {
+    content: ' ▼';
+    color: #92400e;
+  }
+
+  .fc-table tr.is-drop td:first-child::after {
+    content: ' ⚠';
+    color: #991b1b;
+  }
+
+  .fc-actual-input {
+    width: 5.5rem;
+  }
+}
+
+@media (max-width: 480px) {
+  .home-inputs {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+}
+
+@media (max-width: 359px) {
+  .home-inputs {
+    grid-template-columns: 1fr;
+  }
+}
+
+@media (max-width: 640px) {
+  .fc-table tr.is-lowest.is-drop td:first-child::after {
+    content: ' ▼⚠';
+  }
+}
+
+/* ---------- Breakpoints summary ----------
+   ≥1201  main column (2×2 panels) + 400px expenses sidebar
+   901–1200  main column (panels stacked) + 340px sticky sidebar
+   ≤900   single column (tablet / phone)
+------------------------------------------- */
+
+/* Rules: as many 150px+ cards per row as fit (2 in the panel, 4 on tablet). */
+.rules-grid {
+  grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
+}
+
+@media (min-width: 901px) and (max-width: 1200px) {
+  .layout {
+    grid-template-columns: minmax(0, 1fr) 340px;
+  }
+
+  .main-col > .col-stack {
+    grid-template-columns: 1fr;
+  }
+
+  .main-col > .col-stack > * {
+    grid-column: auto;
+  }
+
+  /* Sidebar sizes to its content and stays pinned while the panels scroll. */
+  .sidebar {
+    contain: none;
+    min-height: 0;
+    align-self: stretch;
+  }
+
+  .sidebar .panel-active {
+    position: sticky;
+    top: calc(1rem + env(safe-area-inset-top, 0px));
+    height: auto;
+    max-height: calc(100vh - 2rem - env(safe-area-inset-top, 0px));
+  }
+}
+
+@media (max-width: 900px) {
+  .hero-card {
+    flex: 1 1 100%;
+  }
+
+  .hero-split {
+    justify-content: space-between;
+  }
+}
+
+/* The income bar also carries a date field, so it needs to wrap earlier. */
+@container (max-width: 600px) {
+  .income-bar,
+  .dream-bar {
+    flex-wrap: wrap;
+    border-radius: 14px;
+  }
+
+  .income-bar .wish-item,
+  .dream-bar .wish-item {
+    flex: 1 1 100%;
+    border-bottom: 1px solid #e2e8f0;
+  }
+
+  .income-bar .wish-price,
+  .dream-bar .wish-price {
+    flex: 1 1 0;
+    border-inline: none;
+  }
+
+  .income-bar .income-date-input {
+    border-left: 1px solid #e2e8f0;
+  }
+}

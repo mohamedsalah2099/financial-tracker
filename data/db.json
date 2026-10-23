@@ -1,0 +1,297 @@
+{
+  "savedAt": "2026-10-22T20:15:52.480Z",
+  "expenses": [
+    {
+      "id": "personal",
+      "label": "Personal expenses",
+      "amount": 500,
+      "currency": "USD",
+      "type": "monthly",
+      "date": "2026-10-01",
+      "monthEnd": "2027-07-01",
+      "usdRate": 51
+    },
+    {
+      "id": "sister-uni",
+      "label": "Sister's university",
+      "amount": 1500,
+      "currency": "USD",
+      "type": "one-time",
+      "date": "2027-02-01",
+      "usdRate": 51
+    },
+    {
+      "id": "0822071d-e69e-41e0-a4b3-cccf700c5391",
+      "label": "Air Fryer",
+      "amount": 6800,
+      "currency": "EGP",
+      "usdRate": 50,
+      "type": "one-time",
+      "date": "2026-10-13",
+      "monthEnd": ""
+    },
+    {
+      "id": "29dfb430-132f-4ee3-ae24-1333a14778db",
+      "label": "Wedding",
+      "amount": 21000,
+      "currency": "USD",
+      "usdRate": 51,
+      "type": "one-time",
+      "date": "2027-06-30",
+      "monthEnd": ""
+    }
+  ],
+  "wishlist": [
+    {
+      "label": "Washing Machine",
+      "amount": "13000",
+      "currency": "EGP",
+      "note": "",
+      "id": "8732169c-3cb9-4f43-8867-2d1cd7db24ab"
+    },
+    {
+      "label": "TVs",
+      "amount": "60000",
+      "currency": "EGP",
+      "note": "",
+      "id": "b39cf2f1-bb45-4393-95bf-2bf28a790b2d"
+    },
+    {
+      "label": "Air Conditioner (2x1.5, 1x3)",
+      "amount": "90000",
+      "currency": "EGP",
+      "note": "",
+      "id": "d91b6246-4a57-4f23-bbb7-d38293a871e7"
+    },
+    {
+      "label": "Cook",
+      "amount": "13000",
+      "currency": "EGP",
+      "note": "",
+      "id": "829f1633-3e5c-480f-bb55-5f0437e48b52"
+    },
+    {
+      "label": "Dress",
+      "amount": "40000",
+      "currency": "EGP",
+      "note": "",
+      "id": "56e28dab-d2cf-4a4d-8f1a-47f6fbd3fa96"
+    },
+    {
+      "label": "Birthday",
+      "amount": "70000",
+      "currency": "EGP",
+      "note": "",
+      "id": "50d66994-9ac3-4a50-b4e0-99990e9e0489"
+    },
+    {
+      "label": "Fridge",
+      "amount": "20000",
+      "currency": "EGP",
+      "note": "",
+      "id": "f2d032b4-7c6a-4719-a5bf-3d72b471e955"
+    },
+    {
+      "label": "Kitchen",
+      "amount": "35000",
+      "currency": "EGP",
+      "note": "",
+      "id": "02d48a11-5c21-4e42-9cc4-eccd4290a933"
+    },
+    {
+      "label": "Antreh",
+      "amount": "26000",
+      "currency": "EGP",
+      "note": "",
+      "id": "71fb7eb7-4a82-47ce-95a6-2f873b75ec59"
+    },
+    {
+      "label": "Salon",
+      "amount": "35000",
+      "currency": "EGP",
+      "note": "",
+      "id": "1e5f0fc1-30e3-4fc8-b676-1bb50aa0f9a3"
+    },
+    {
+      "label": "Dinning",
+      "amount": "30000",
+      "currency": "EGP",
+      "note": "",
+      "id": "e6e53b50-ff95-4e13-a921-a5939842453b"
+    },
+    {
+      "label": "Master",
+      "amount": "40000",
+      "currency": "EGP",
+      "note": "",
+      "id": "a11db72f-02fe-478a-9378-b3951d54792a"
+    },
+    {
+      "label": "Living",
+      "amount": "50000",
+      "currency": "EGP",
+      "note": "",
+      "id": "bb1eb200-aab7-42fa-b72e-543c03881217"
+    },
+    {
+      "label": "Children",
+      "amount": "25000",
+      "currency": "EGP",
+      "note": "",
+      "id": "8e5939bb-d156-42ff-80e9-1c55ce7b4681"
+    },
+    {
+      "label": "Makeup Artist",
+      "amount": "10000",
+      "currency": "EGP",
+      "note": "",
+      "id": "fa7cf274-676d-4868-9b41-9d64efdcb933"
+    },
+    {
+      "label": "Wedding",
+      "amount": "70000",
+      "currency": "EGP",
+      "id": "169e1c7f-4366-4c94-b08d-fdb02753d592"
+    },
+    {
+      "label": "Hairdresser",
+      "amount": "10000",
+      "currency": "EGP",
+      "id": "e5fbe1aa-7c91-4c42-8471-8e0b16680af3"
+    },
+    {
+      "label": "Honeymoon",
+      "amount": "150000",
+      "currency": "EGP",
+      "id": "59bdebb3-327e-4b49-b594-878a5ae64ac6"
+    },
+    {
+      "label": "Nagaf",
+      "amount": "50000",
+      "currency": "EGP",
+      "id": "1d862efc-8703-4214-88c5-37e437e19d38"
+    },
+    {
+      "label": "Heater",
+      "amount": "8000",
+      "currency": "EGP",
+      "id": "90ce9115-6a06-4526-9982-93b486e15bec"
+    },
+    {
+      "label": "My Suit",
+      "amount": "7000",
+      "currency": "EGP",
+      "id": "86d91a6f-28be-4654-864d-e743a1866435"
+    },
+    {
+      "label": "Dishwasher",
+      "amount": "10000",
+      "currency": "EGP",
+      "id": "1d2c4288-4319-4ff6-bbe9-d00996e46a2f"
+    },
+    {
+      "label": "LAWYERS",
+      "amount": "20000",
+      "currency": "EGP",
+      "id": "4432154b-c525-41cf-b362-bb84c44a4b35"
+    },
+    {
+      "label": "Additional Expenses...",
+      "amount": "1500",
+      "currency": "USD",
+      "id": "e8d273d5-4724-4f71-a827-9bf71ffd51e9"
+    },
+    {
+      "label": "Other Personal Expenses...",
+      "amount": "30000",
+      "currency": "EGP",
+      "id": "50c7bbce-5fdd-4294-879c-368214f86a6c"
+    },
+    {
+      "label": "Playstation",
+      "amount": "45000",
+      "currency": "EGP",
+      "id": "cafa3b86-61b4-401d-87c3-58abaacfcb64"
+    },
+    {
+      "label": "Deep Freezer",
+      "amount": "10000",
+      "currency": "EGP",
+      "id": "bef813fe-388f-42cf-92a5-7259d4a542a2"
+    },
+    {
+      "label": "Smart Home",
+      "amount": "50000",
+      "currency": "EGP",
+      "id": "a987ffe6-2002-43c5-b824-be1e581f7033"
+    }
+  ],
+  "extraIncome": [
+    {
+      "label": "September Overtime",
+      "amount": 400,
+      "currency": "USD",
+      "date": "2026-11-04",
+      "id": "586d09fb-498b-4e1f-a9a1-f0b24705889b"
+    },
+    {
+      "label": "October Overtime",
+      "amount": 180,
+      "currency": "USD",
+      "date": "2026-11-04",
+      "id": "b5f688a1-532a-465d-850c-298672cbbe50"
+    },
+    {
+      "label": "Days-off",
+      "amount": 2200,
+      "currency": "USD",
+      "date": "2027-01-03",
+      "id": "31a0c3ff-2311-4d8f-a130-834d718badd1"
+    },
+    {
+      "label": "Bitcoin",
+      "amount": 70000,
+      "currency": "EGP",
+      "date": "2027-03-30",
+      "id": "67378aac-c7e6-4df0-82a0-6c11668aa21d"
+    }
+  ],
+  "dreamIncome": [
+    {
+      "label": "Old Apartment",
+      "amount": 1350000,
+      "currency": "EGP",
+      "id": "608b91dd-66b9-40aa-8980-edf7a9e81a46"
+    },
+    {
+      "label": "Chalet",
+      "amount": 100000,
+      "currency": "EGP",
+      "id": "4fe0fac2-cb4b-42d5-ac86-ab44b8e39ff2"
+    },
+    {
+      "label": "Cases",
+      "amount": 50000,
+      "currency": "EGP",
+      "id": "221f122c-efe1-4b4f-959e-a95a84a1bde7"
+    }
+  ],
+  "actualBalances": {
+    "2026-09": "42300"
+  },
+  "homePlan": {
+    "priceEgp": "4000000",
+    "maxSharePct": "75",
+    "windowStart": "12",
+    "windowEnd": "16",
+    "monthlyCostUsd": "1500"
+  },
+  "carPlan": {
+    "priceEgp": "1600000",
+    "maxSharePct": "35",
+    "windowStart": "6",
+    "windowEnd": "12",
+    "monthlyCostUsd": "1500"
+  },
+  "purchaseView": "home"
+}
