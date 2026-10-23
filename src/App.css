@@ -1156,6 +1156,17 @@ tr.income td:first-child {
   align-content: start;
 }
 
+.home-combined {
+  grid-column: 1 / -1;
+  margin: -0.25rem 0 0;
+  font-size: 0.78rem;
+  color: #64748b;
+}
+
+.home-combined b {
+  color: #0f172a;
+}
+
 .home-range {
   display: flex;
   align-items: center;

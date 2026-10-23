@@ -37,6 +37,7 @@ const TABLES = {
   actualBalances: { key: 'wedding-finance-actuals-v1' },
   homePlan: { key: 'wedding-finance-home-plan-v1' },
   carPlan: { key: 'wedding-finance-car-plan-v1' },
+  bothPlan: { key: 'wedding-finance-both-plan-v1' },
   purchaseView: { key: 'wedding-finance-purchase-view-v1' },
 }
 

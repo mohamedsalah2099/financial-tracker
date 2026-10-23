@@ -11,6 +11,8 @@ const KINDS = {
     title: 'Home purchase forecast 🏠',
     tab: '🏠 Home',
     noun: 'home',
+    name: 'Home',
+    cheaper: 'Cheaper home',
     priceStep: 50000,
     defaults: {
       priceEgp: 4000000,
@@ -26,12 +28,29 @@ const KINDS = {
     title: 'Car purchase forecast 🚗',
     tab: '🚗 Car',
     noun: 'car',
+    name: 'Car',
+    cheaper: 'Cheaper car',
     priceStep: 25000,
     defaults: {
       priceEgp: 1200000,
       maxSharePct: 30,
       windowStart: 3,
       windowEnd: 9,
+      monthlyCostUsd: 800,
+    },
+  },
+  // Buying both in the same month. Prices come from the Home and Car plans;
+  // the limit, window and living costs are this plan's own.
+  both: {
+    key: 'wedding-finance-both-plan-v1',
+    title: 'Home + car purchase forecast 🏠🚗',
+    tab: '🏠+🚗 Both',
+    noun: 'home + car',
+    cheaper: 'Smaller total budget',
+    defaults: {
+      maxSharePct: 60,
+      windowStart: 6,
+      windowEnd: 12,
       monthlyCostUsd: 800,
     },
   },
@@ -60,32 +79,52 @@ function egpCompact(value) {
   return formatMoney(Math.round(value / 1000) * 1000, 'EGP')
 }
 
-export default function HomePlanner(props) {
-  const [view, setView] = useState(loadView)
-
-  useEffect(() => {
-    persist(VIEW_KEY, view)
-  }, [view])
-
+function PriceInput({ kind, plan, setPlan }) {
+  const { name, priceStep } = KINDS[kind]
   return (
-    <PurchasePlanner
-      // Remount on switch so each kind loads its own saved plan.
-      key={view}
-      kind={view}
-      onKindChange={setView}
-      {...props}
-    />
+    <label>
+      {name} price (EGP)
+      <input
+        type="number"
+        min="0"
+        step={priceStep}
+        value={plan.priceEgp}
+        onChange={(e) => setPlan({ ...plan, priceEgp: e.target.value })}
+      />
+    </label>
   )
 }
 
-function PurchasePlanner({ kind, onKindChange, settings, startTotalUsd, weddingDate, extraIncome }) {
-  const config = KINDS[kind]
-  const { noun } = config
+function usePlan(kind) {
   const [plan, setPlan] = useState(() => loadPlan(kind))
 
   useEffect(() => {
-    persist(config.key, plan)
-  }, [config.key, plan])
+    persist(KINDS[kind].key, plan)
+  }, [kind, plan])
+
+  return [plan, setPlan]
+}
+
+export default function HomePlanner({ settings, startTotalUsd, weddingDate, extraIncome }) {
+  const [kind, setKind] = useState(loadView)
+  const plans = { home: usePlan('home'), car: usePlan('car'), both: usePlan('both') }
+  const [homePlan, setHomePlan] = plans.home
+  const [carPlan, setCarPlan] = plans.car
+  const [plan, setPlan] = plans[kind]
+  const config = KINDS[kind]
+  const { noun } = config
+
+  useEffect(() => {
+    persist(VIEW_KEY, kind)
+  }, [kind])
+
+  const priceEgp =
+    kind === 'both'
+      ? (Number(homePlan.priceEgp) || 0) + (Number(carPlan.priceEgp) || 0)
+      : plan.priceEgp
+
+  // Each plan can assume its own dollar rate; empty falls back to today's rate.
+  const usdRate = Number(plan.usdRate) || Number(settings.usdToEgp) || 1
 
   const windowStart = Math.max(1, Number(plan.windowStart) || 1)
   const windowEnd = Math.max(windowStart, Number(plan.windowEnd) || windowStart)
@@ -93,17 +132,17 @@ function PurchasePlanner({ kind, onKindChange, settings, startTotalUsd, weddingD
   const result = useMemo(
     () =>
       forecastHomePurchase({
-        settings,
+        settings: { ...settings, usdToEgp: usdRate },
         startTotalUsd,
         weddingDate,
         extraIncome,
         monthlyCostUsd: plan.monthlyCostUsd,
-        priceEgp: plan.priceEgp,
+        priceEgp,
         maxShare: (Number(plan.maxSharePct) || 0) / 100,
         windowStart,
         windowEnd,
       }),
-    [settings, startTotalUsd, weddingDate, extraIncome, plan, windowStart, windowEnd],
+    [settings, usdRate, startTotalUsd, weddingDate, extraIncome, plan, priceEgp, windowStart, windowEnd],
   )
 
   if (!result) return null
@@ -159,7 +198,7 @@ function PurchasePlanner({ kind, onKindChange, settings, startTotalUsd, weddingD
               type="button"
               aria-pressed={id === kind}
               className={id === kind ? 'active' : ''}
-              onClick={() => onKindChange(id)}
+              onClick={() => setKind(id)}
             >
               {k.tab}
             </button>
@@ -172,16 +211,18 @@ function PurchasePlanner({ kind, onKindChange, settings, startTotalUsd, weddingD
 
       <div className="home-top">
         <div className="home-inputs">
-          <label>
-            {noun === 'car' ? 'Car' : 'Home'} price (EGP)
-            <input
-              type="number"
-              min="0"
-              step={config.priceStep}
-              value={plan.priceEgp}
-              onChange={set('priceEgp')}
-            />
-          </label>
+          {kind === 'both' ? (
+            <>
+              <PriceInput kind="home" plan={homePlan} setPlan={setHomePlan} />
+              <PriceInput kind="car" plan={carPlan} setPlan={setCarPlan} />
+              <p className="home-combined">
+                Together <b>{egpCompact(priceEgp)}</b> ({formatMoney(result.priceUsd, 'USD')}) ·
+                prices are shared with the Home and Car tabs
+              </p>
+            </>
+          ) : (
+            <PriceInput kind={kind} plan={plan} setPlan={setPlan} />
+          )}
           <label>
             Max share of balance (%)
             <input
@@ -210,6 +251,16 @@ function PurchasePlanner({ kind, onKindChange, settings, startTotalUsd, weddingD
               onChange={set('monthlyCostUsd')}
             />
           </label>
+          <label>
+            Dollar rate (EGP per $1)
+            <input
+              type="number"
+              min="0"
+              step="0.05"
+              value={plan.usdRate ?? settings.usdToEgp}
+              onChange={set('usdRate')}
+            />
+          </label>
         </div>
 
         <div className={`home-verdict ${verdict.tone}`}>
@@ -227,12 +278,12 @@ function PurchasePlanner({ kind, onKindChange, settings, startTotalUsd, weddingD
                   : 'it does not fit within 5 years at these numbers.'}
               </li>
               <li>
-                <b>Cheaper {noun}:</b> by {windowEndMonth.label} the rule allows up to{' '}
+                <b>{config.cheaper}:</b> by {windowEndMonth.label} the rule allows up to{' '}
                 {egpCompact(result.maxPriceEgpAtWindowEnd)}.
               </li>
               <li>
                 <b>Save more:</b> an extra {formatMoney(result.extraPerMonthUsd, 'USD')}/month from
-                the wedding would make {egpCompact(Number(plan.priceEgp) || 0)} fit by{' '}
+                the wedding would make {egpCompact(Number(priceEgp) || 0)} fit by{' '}
                 {windowEndMonth.label}.
               </li>
             </ul>
@@ -275,7 +326,7 @@ function PurchasePlanner({ kind, onKindChange, settings, startTotalUsd, weddingD
         your {plan.maxSharePct}% limit. Shaded rows are your {windowStart}–{windowEnd} month window.
         Assumes your salary stays at {formatMoney(Number(settings.salaryAfterIncrease), 'USD')}, the
         rate stays at {result.rate} EGP per $1, and extra income dated after the wedding is
-        included. If the exchange rate moves, the {noun}&apos;s USD cost moves with it.
+        included. If the exchange rate moves, the USD cost of the {noun} moves with it.
       </p>
     </section>
   )

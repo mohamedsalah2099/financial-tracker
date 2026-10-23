@@ -1,5 +1,5 @@
 {
-  "savedAt": "2026-10-22T20:15:52.480Z",
+  "savedAt": "2026-10-23T19:35:23.441Z",
   "expenses": [
     {
       "id": "personal",
@@ -284,14 +284,22 @@
     "maxSharePct": "75",
     "windowStart": "12",
     "windowEnd": "16",
-    "monthlyCostUsd": "1500"
+    "monthlyCostUsd": "1500",
+    "usdRate": "55"
   },
   "carPlan": {
-    "priceEgp": "1600000",
+    "priceEgp": "1500000",
     "maxSharePct": "35",
     "windowStart": "6",
     "windowEnd": "12",
     "monthlyCostUsd": "1500"
+  },
+  "bothPlan": {
+    "maxSharePct": "80",
+    "windowStart": "12",
+    "windowEnd": "24",
+    "monthlyCostUsd": "1600",
+    "usdRate": "55"
   },
   "purchaseView": "home"
 }
