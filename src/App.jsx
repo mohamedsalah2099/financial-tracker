@@ -13,6 +13,7 @@ import { persist } from './lib/db.js'
 import Forecast from './Forecast.jsx'
 import HomePlanner from './HomePlanner.jsx'
 import './App.css'
+import { Analytics } from '@vercel/analytics/react'
 
 const STORAGE_KEY = 'wedding-finance-tracker-v3'
 const WISHLIST_KEY = 'wedding-finance-wishlist-v1'
@@ -977,6 +978,7 @@ function App() {
           </div>
         </section>
       </main>
+      <Analytics />
     </div>
   )
 }
