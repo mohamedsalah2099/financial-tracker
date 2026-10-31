@@ -12,6 +12,7 @@ import {
 import { persist } from './lib/db.js'
 import Forecast from './Forecast.jsx'
 import HomePlanner from './HomePlanner.jsx'
+import { logout } from './Login.jsx'
 import './App.css'
 import { Analytics } from '@vercel/analytics/react'
 
@@ -358,6 +359,9 @@ function App() {
             {daysToWedding > 0 ? (
               <span className="countdown">💍 {daysToWedding} days to go</span>
             ) : null}
+            <button type="button" className="logout-link" onClick={logout}>
+              Log out
+            </button>
           </p>
           <h1>
             What you&apos;ll have on <em>your wedding day</em>

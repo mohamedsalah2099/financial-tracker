@@ -1800,6 +1800,38 @@ th.num {
   gap: 0.6rem;
 }
 
+.login {
+  display: grid;
+  gap: 0.6rem;
+  width: min(260px, 100% - 2rem);
+  margin: 30vh auto 0;
+}
+
+.login button {
+  grid-column: auto;
+}
+
+.login-error {
+  margin: 0;
+  color: #b91c1c;
+  font-size: 0.9rem;
+}
+
+.logout-link {
+  margin-left: auto;
+  padding: 0;
+  background: none;
+  font-size: 0.72rem;
+  font-weight: 600;
+  color: #64748b;
+  text-decoration: none;
+}
+
+.logout-link:hover {
+  color: #0f172a;
+  text-decoration: underline;
+}
+
 .countdown {
   padding: 0.2rem 0.6rem;
   border-radius: 999px;
