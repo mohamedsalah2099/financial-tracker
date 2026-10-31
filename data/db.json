@@ -1,5 +1,5 @@
 {
-  "savedAt": "2026-10-31T10:34:22.024Z",
+  "savedAt": "2026-10-31T13:34:52.944Z",
   "expenses": [
     {
       "id": "personal",
@@ -9,15 +9,6 @@
       "type": "monthly",
       "date": "2026-10-01",
       "monthEnd": "2027-07-01",
-      "usdRate": 51
-    },
-    {
-      "id": "sister-uni",
-      "label": "Sister's university",
-      "amount": 1500,
-      "currency": "USD",
-      "type": "one-time",
-      "date": "2027-02-01",
       "usdRate": 51
     },
     {
@@ -31,13 +22,23 @@
       "monthEnd": ""
     },
     {
-      "id": "29dfb430-132f-4ee3-ae24-1333a14778db",
-      "label": "Wedding",
-      "amount": 21000,
+      "id": "a0a417c3-89bd-4b14-adbe-899a1c7a380c",
+      "label": "Sister's University",
+      "amount": 1500,
       "currency": "USD",
       "usdRate": 51,
       "type": "one-time",
-      "date": "2027-06-30",
+      "date": "2027-02-01",
+      "monthEnd": ""
+    },
+    {
+      "id": "f741a7ef-3853-42ed-bf8e-9d05bc96903a",
+      "label": "Wedding",
+      "amount": 20000,
+      "currency": "USD",
+      "usdRate": 51,
+      "type": "one-time",
+      "date": "2027-07-01",
       "monthEnd": ""
     }
   ],
@@ -224,6 +225,12 @@
       "amount": "50000",
       "currency": "EGP",
       "id": "a987ffe6-2002-43c5-b824-be1e581f7033"
+    },
+    {
+      "label": "Rent",
+      "amount": "2000",
+      "currency": "USD",
+      "id": "64dac3c2-663b-413d-8eb6-bf936a390f26"
     }
   ],
   "extraIncome": [
@@ -231,14 +238,14 @@
       "label": "September Overtime",
       "amount": 400,
       "currency": "USD",
-      "date": "2026-11-04",
+      "date": "2026-11-05",
       "id": "586d09fb-498b-4e1f-a9a1-f0b24705889b"
     },
     {
       "label": "October Overtime",
       "amount": 180,
       "currency": "USD",
-      "date": "2026-11-04",
+      "date": "2026-11-05",
       "id": "b5f688a1-532a-465d-850c-298672cbbe50"
     },
     {
@@ -277,8 +284,8 @@
     }
   ],
   "actualBalances": {
-    "2026-09": "39300",
-    "2026-10": "43550"
+    "2026-09": "31000",
+    "2026-10": "34500"
   },
   "homePlan": {
     "priceEgp": "4000000",
@@ -300,7 +307,7 @@
     "windowStart": "12",
     "windowEnd": "24",
     "monthlyCostUsd": "1600",
-    "usdRate": "55"
+    "usdRate": "53"
   },
   "purchaseView": "both"
 }

@@ -86,7 +86,13 @@ export function salaryForWorkMonth(workMonthDate, settings) {
   return settings.salaryBeforeIncrease
 }
 
-/** Salary for work in month M is paid on the 1st of month M+1. */
+const SALARY_PAY_DAY = 5
+
+/**
+ * Salary for work in month M is paid on the 5th of month M+1. Work done before the
+ * wedding month but paid just after the wedding (June's, paid July 5) is still
+ * counted, on the wedding day. Work in the wedding month itself isn't counted.
+ */
 export function buildSalaryEvents(settings, weddingDate) {
   const events = []
   const from = parseDate(settings.planStartDate)
@@ -94,31 +100,35 @@ export function buildSalaryEvents(settings, weddingDate) {
   if (!from || !wedding) return events
 
   let cursor = firstDayOfMonth(from.getFullYear(), from.getMonth())
-  const weddingMonth = wedding.getMonth()
-  const weddingYear = wedding.getFullYear()
+  const weddingMonthStart = firstDayOfMonth(wedding.getFullYear(), wedding.getMonth())
 
   while (cursor <= wedding) {
-    const paymentDate = addMonths(cursor, 1)
-    if (paymentDate > wedding) break
+    const isWeddingMonthWork = cursor >= weddingMonthStart
+    if (isWeddingMonthWork && settings.excludeJulySalaryAtWedding) break
 
-    const isJulyWorkExcluded =
-      settings.excludeJulySalaryAtWedding &&
-      cursor.getMonth() === 6 &&
-      cursor.getFullYear() === weddingYear
+    const paymentDate = new Date(cursor.getFullYear(), cursor.getMonth() + 1, SALARY_PAY_DAY)
+    const paidAfterWedding = paymentDate > wedding
+    if (paidAfterWedding && isWeddingMonthWork) break
 
-    if (!isJulyWorkExcluded) {
-      const amount = salaryForWorkMonth(cursor, settings)
-      events.push({
-        id: `salary-${monthKey(cursor)}`,
-        kind: 'salary',
-        date: formatDate(paymentDate),
-        label: `Salary (work: ${MONTH_NAMES[cursor.getMonth()]} ${cursor.getFullYear()})`,
-        amountUsd: amount,
-        amountEgp: 0,
-        recurring: false,
-        locked: true,
-      })
-    }
+    const amount = salaryForWorkMonth(cursor, settings)
+    events.push({
+      id: `salary-${monthKey(cursor)}`,
+      kind: 'salary',
+      date: formatDate(paidAfterWedding ? wedding : paymentDate),
+      label: `Salary (work: ${MONTH_NAMES[cursor.getMonth()]} ${cursor.getFullYear()})${
+        paidAfterWedding ? ` — paid ${formatDate(paymentDate)}, counted on the wedding day` : ''
+      }`,
+      ...(paidAfterWedding
+        ? {
+            name: `Salary (work: ${MONTH_NAMES[cursor.getMonth()]} ${cursor.getFullYear()})`,
+            detail: `paid ${formatDate(paymentDate)}, counted on the wedding day`,
+          }
+        : {}),
+      amountUsd: amount,
+      amountEgp: 0,
+      recurring: false,
+      locked: true,
+    })
 
     cursor = addMonths(cursor, 1)
   }
@@ -272,7 +282,7 @@ export function buildMonthlyForecast(ledger, asOfDate, weddingDate) {
 /**
  * Month-by-month total balance (spendable + gold, in USD) after the wedding, and
  * whether a home fits the rule "price ≤ maxShare × total balance" each month.
- * After the wedding: salaryAfterIncrease lands on the 1st of each month (the first
+ * After the wedding: salaryAfterIncrease lands once a month (the first
  * one is the July salary paid in August) and monthlyCostUsd goes out.
  */
 export function forecastHomePurchase({
@@ -378,6 +388,8 @@ export function runProjection(
     (Number(settings.openingUsd) || 0) + (Number(settings.nbkUsd) || 0)
   const goldEgp = Number(settings.goldReserveEgp ?? settings.openingEgp) || 0
   const rate = Number(settings.usdToEgp) || 1
+  // The gold's fixed USD value, if set; otherwise the EGP reserve at the plan rate.
+  const goldUsd = Number(settings.goldValueUsd) || goldEgp / rate
 
   const salaryEvents = buildSalaryEvents(settings, weddingDate)
   const customEvents = expandCustomExpenses(customExpenses, weddingDate, rate)
@@ -388,11 +400,12 @@ export function runProjection(
     {
       id: 'opening',
       date: formatDate(asOf),
-      label: 'Opening balance (spendable USD incl. NBK + gold reserve)',
+      label: 'Opening balance',
       usdDelta: 0,
       egpExpense: 0,
       usdBalance: spendableUsd,
       goldEgp,
+      goldUsd,
       kind: 'opening',
     },
   ]
@@ -400,23 +413,29 @@ export function runProjection(
   // Where you typed a real month-end balance, the projection continues from it.
   const checkpoints = actualCheckpoints(actualBalances, asOf, wedding)
   let nextCheckpoint = 0
+  // The typed balance is the main bank's USD only: the gold and the other bank's
+  // fixed USD (NBK) are counted separately, so the NBK amount is added back here.
+  const otherBankUsd = Number(settings.nbkUsd) || 0
   const applyCheckpoint = (c) => {
+    const actualSpendable = c.value + otherBankUsd
+    const projectedMain = spendableUsd - otherBankUsd
     ledger.push({
       id: `actual-${c.key}`,
       date: formatDate(c.end),
-      label: `Actual balance ${formatMoney(c.value, 'USD')} (projected ${formatMoney(spendableUsd, 'USD')})`,
+      label: `Actual balance ${formatMoney(c.value, 'USD')} (projected ${formatMoney(projectedMain, 'USD')}), excl. gold and other bank`,
       name: 'Actual balance',
-      detail: `projected ${formatMoney(spendableUsd, 'USD')} — continuing from your real balance`,
-      usdDelta: c.value - spendableUsd,
+      detail: `projected ${formatMoney(projectedMain, 'USD')} — continuing from your real balance`,
+      usdDelta: actualSpendable - spendableUsd,
       egpExpense: 0,
       usdFromEgpExpense: 0,
       expenseRate: null,
-      usdBalance: c.value,
+      usdBalance: actualSpendable,
       projectedUsd: spendableUsd,
       goldEgp,
+      goldUsd,
       kind: 'actual',
     })
-    spendableUsd = c.value
+    spendableUsd = actualSpendable
   }
 
   for (const event of timeline) {
@@ -474,6 +493,7 @@ export function runProjection(
       expenseRate: usdFromEgpExpense > 0 ? event.rate : null,
       usdBalance: spendableUsd,
       goldEgp,
+      goldUsd,
       kind: event.kind,
     })
   }
@@ -482,12 +502,14 @@ export function runProjection(
     applyCheckpoint(checkpoints[nextCheckpoint])
   }
 
-  const totalUsdEquivalent = spendableUsd + goldEgp / rate
+  const totalUsdEquivalent = spendableUsd + goldUsd
 
   return {
     ledger,
     finalUsd: spendableUsd,
     finalEgp: goldEgp,
+    goldUsd,
+    otherBankUsd,
     totalUsdEquivalent,
     rate,
     weddingDate,
@@ -498,13 +520,14 @@ export const DEFAULT_SETTINGS = {
   asOfDate: '2026-09-27',
   planStartDate: '2026-09-01',
   weddingDate: '2027-07-02',
-  openingUsd: 36000,
+  openingUsd: 31000,
   nbkUsd: 650,
   goldReserveEgp: 140000,
+  goldValueUsd: 7500,
   usdToEgp: 51,
   salaryBeforeIncrease: 4250,
   salaryAfterIncrease: 4600,
-  salaryIncreaseDate: '2027-02-01',
+  salaryIncreaseDate: '2027-01-01',
   excludeJulySalaryAtWedding: true,
 }
 

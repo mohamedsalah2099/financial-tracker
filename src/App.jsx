@@ -23,6 +23,11 @@ const ACTUALS_KEY = 'wedding-finance-actuals-v1'
 
 const SETTINGS = DEFAULT_SETTINGS
 
+/** crypto.randomUUID only exists on HTTPS/localhost; fall back on plain-HTTP LAN access. */
+function newId() {
+  return crypto.randomUUID?.() ?? `${Date.now().toString(36)}-${Math.random().toString(36).slice(2)}`
+}
+
 /** Every expense carries its own USD price; older saved items get the default. */
 function withOwnRate(expense) {
   return { ...expense, usdRate: Number(expense.usdRate) || SETTINGS.usdToEgp }
@@ -56,9 +61,10 @@ const RULE_FIELDS = [
   { key: 'weddingDate', label: 'Wedding date' },
   { key: 'planStartDate', label: 'Plan salaries from (work month)' },
   { key: 'usdToEgp', label: 'USD → EGP rate' },
-  { key: 'openingUsd', label: 'Opening USD ($35k + $5k)', format: 'USD' },
+  { key: 'openingUsd', label: 'Opening USD', format: 'USD' },
   { key: 'nbkUsd', label: 'NBK Bank account (USD)', format: 'USD' },
   { key: 'goldReserveEgp', label: 'Gold reserve (EGP, not spent)', format: 'EGP' },
+  { key: 'goldValueUsd', label: 'Gold value (USD, used in totals)', format: 'USD' },
   { key: 'salaryBeforeIncrease', label: 'Salary until increase', format: 'USD' },
   { key: 'salaryAfterIncrease', label: 'Salary after increase', format: 'USD' },
   { key: 'salaryIncreaseDate', label: 'Increase effective from' },
@@ -78,7 +84,7 @@ function formatRuleValue(key, value, format) {
 
 function emptyExpense() {
   return {
-    id: crypto.randomUUID(),
+    id: newId(),
     label: '',
     amount: '',
     currency: 'USD',
@@ -116,7 +122,7 @@ function csvCell(value) {
 }
 
 /** Raw numbers (no currency symbols) so the file opens cleanly in Excel/Sheets. */
-function exportLedgerCsv(ledger, rate) {
+function exportLedgerCsv(ledger) {
   const round = (n) => Math.round(n * 100) / 100
   // Blank instead of 0 for columns that only apply to some rows (like "—" on screen).
   const optional = (n) => (n ? round(n) : '')
@@ -140,7 +146,7 @@ function exportLedgerCsv(ledger, rate) {
     optional(-row.usdFromEgpExpense),
     round(row.usdBalance),
     round(row.goldEgp),
-    round(row.usdBalance + row.goldEgp / rate),
+    round(row.usdBalance + row.goldUsd),
   ])
   const csv = [header, ...rows].map((r) => r.map(csvCell).join(',')).join('\r\n')
   // BOM so Excel reads UTF-8 (÷, —, −) correctly.
@@ -150,7 +156,8 @@ function exportLedgerCsv(ledger, rate) {
   link.href = url
   link.download = `cash-flow-timeline-${formatDate(new Date())}.csv`
   link.click()
-  URL.revokeObjectURL(url)
+  // Revoking right away can cancel the download in some browsers.
+  setTimeout(() => URL.revokeObjectURL(url), 1000)
 }
 
 function App() {
@@ -193,7 +200,7 @@ function App() {
       ...prev,
       {
         ...dream,
-        id: crypto.randomUUID(),
+        id: newId(),
         label: dream.label.trim(),
         amount: Number(dream.amount),
       },
@@ -213,7 +220,7 @@ function App() {
         ...prev,
         {
           ...income,
-          id: crypto.randomUUID(),
+          id: newId(),
           label: income.label.trim(),
           amount: Number(income.amount),
         },
@@ -233,7 +240,7 @@ function App() {
     if (!wish.label.trim()) return
     setWishlist((prev) => [
       ...prev,
-      { ...wish, id: crypto.randomUUID(), label: wish.label.trim() },
+      { ...wish, id: newId(), label: wish.label.trim() },
     ])
     setWish(emptyWish())
   }
@@ -268,6 +275,8 @@ function App() {
   const ledgerByMonth = useMemo(() => {
     const groups = []
     for (const row of projection.ledger) {
+      // Actual-balance corrections stay in the ledger (the forecast needs them) but aren't listed.
+      if (row.kind === 'actual') continue
       const key = row.date.slice(0, 7)
       let group = groups[groups.length - 1]
       if (!group || group.key !== key) {
@@ -282,7 +291,6 @@ function App() {
       }
       group.rows.push(row)
       group.net += row.usdDelta || 0
-      group.endBalance = row.usdBalance
     }
     return groups
   }, [projection.ledger])
@@ -325,7 +333,7 @@ function App() {
       ...prev,
       {
         ...draft,
-        id: crypto.randomUUID(),
+        id: newId(),
         amount: Number(draft.amount),
         usdRate: Number(draft.usdRate) || SETTINGS.usdToEgp,
       },
@@ -389,7 +397,7 @@ function App() {
           </p>
           <div className="hero-split">
             <span>Spendable {formatMoney(projection.finalUsd, 'USD')}</span>
-            <span>Gold {formatMoney(projection.finalEgp, 'EGP')}</span>
+            <span>Gold {formatMoney(projection.goldUsd, 'USD')}</span>
           </div>
         </aside>
       </header>
@@ -914,6 +922,8 @@ function App() {
 
         <Forecast
           ledger={projection.ledger}
+          goldUsd={projection.goldUsd}
+          otherBankUsd={projection.otherBankUsd}
           asOfDate={SETTINGS.asOfDate}
           weddingDate={SETTINGS.weddingDate}
           actuals={actuals}
@@ -933,14 +943,13 @@ function App() {
             <button
               type="button"
               className="export-btn"
-              onClick={() => exportLedgerCsv(projection.ledger, projection.rate)}
+              onClick={() => exportLedgerCsv(projection.ledger)}
             >
               ↓ Export CSV
             </button>
           </div>
           <p className="expense-note">
-            Gold reserve stays at {formatMoney(projection.finalEgp, 'EGP')} throughout and is
-            included in Total. {projection.ledger.length} entries, grouped by month.
+            {ledgerByMonth.reduce((n, g) => n + g.rows.length, 0)} entries, grouped by month.
           </p>
           <div className="table-wrap ledger-scroll">
             <table className="ledger-table">
@@ -949,8 +958,6 @@ function App() {
                   <th className="col-day">Day</th>
                   <th>Event</th>
                   <th className="num">Change</th>
-                  <th className="num">Spendable USD</th>
-                  <th className="num">Total (USD eq.)</th>
                 </tr>
               </thead>
               <tbody>
@@ -966,8 +973,6 @@ function App() {
                       <th className={`num ${group.net < 0 ? 'neg' : group.net > 0 ? 'pos' : ''}`}>
                         {group.net ? formatMoney(group.net, 'USD') : ''}
                       </th>
-                      <th className="num">{formatMoney(group.endBalance, 'USD')}</th>
-                      <th />
                     </tr>
                     {group.rows.map((row) => (
                       <tr key={row.id} className={row.kind}>
@@ -982,10 +987,6 @@ function App() {
                           {row.usdDelta
                             ? `${row.usdDelta > 0 ? '+' : ''}${formatMoney(row.usdDelta, 'USD')}`
                             : '—'}
-                        </td>
-                        <td className="num">{formatMoney(row.usdBalance, 'USD')}</td>
-                        <td className="num total">
-                          {formatMoney(row.usdBalance + row.goldEgp / projection.rate, 'USD')}
                         </td>
                       </tr>
                     ))}

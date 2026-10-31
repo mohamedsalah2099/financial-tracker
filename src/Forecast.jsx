@@ -225,10 +225,26 @@ function ForecastChart({ months, actuals, lowestKey }) {
   )
 }
 
-export default function Forecast({ ledger, asOfDate, weddingDate, actuals, setActuals }) {
+export default function Forecast({
+  ledger,
+  goldUsd,
+  otherBankUsd,
+  asOfDate,
+  weddingDate,
+  actuals,
+  setActuals,
+}) {
+  // Balances here are the main bank only — the same as the typed actual balances. The
+  // gold and the other bank's fixed USD are shown in their own columns.
   const months = useMemo(
-    () => buildMonthlyForecast(ledger, asOfDate, weddingDate),
-    [ledger, asOfDate, weddingDate],
+    () =>
+      buildMonthlyForecast(ledger, asOfDate, weddingDate).map((m) => ({
+        ...m,
+        start: m.start - otherBankUsd,
+        projected: m.projected - otherBankUsd,
+        balance: m.balance - otherBankUsd,
+      })),
+    [ledger, asOfDate, weddingDate, otherBankUsd],
   )
 
   if (months.length === 0) return null
@@ -239,6 +255,13 @@ export default function Forecast({ ledger, asOfDate, weddingDate, actuals, setAc
     null,
   )
   const final = months[months.length - 1]
+  // The month whose typed actual balance is furthest from the projection (either way).
+  const biggestDiff = months.reduce((best, m) => {
+    const actual = actualOf(actuals, m.key)
+    if (actual == null) return best
+    const diff = actual - m.projected
+    return best && Math.abs(best.diff) >= Math.abs(diff) ? best : { month: m, diff }
+  }, null)
   const isBigDrop = (m) => m.change < 0 && -m.change >= m.start * BIG_DROP_SHARE
 
   const setActual = (key, value) => {
@@ -254,20 +277,31 @@ export default function Forecast({ ledger, asOfDate, weddingDate, actuals, setAc
     <section className="panel full panel-forecast">
       <div className="panel-head">
         <h2>Financial forecast</h2>
-        <span className="rate-badge">Spendable USD · end of month</span>
+        <span className="rate-badge">Main bank USD (excl. gold & other bank) · end of month</span>
       </div>
 
       <div className="fc-body">
         <div className="fc-tiles">
           <div className="fc-tile">
             <span>On your wedding day</span>
-            <strong>{formatMoney(final.balance, 'USD')}</strong>
-            <small>{final.endDate}</small>
+            <strong>{formatMoney(final.balance + otherBankUsd + goldUsd, 'USD')}</strong>
+            <small>
+              {formatMoney(final.balance + otherBankUsd, 'USD')} spendable +{' '}
+              {formatMoney(goldUsd, 'USD')} gold · {final.endDate}
+            </small>
           </div>
-          <div className="fc-tile lowest">
-            <span>Lowest projected balance</span>
-            <strong>{formatMoney(lowest.balance, 'USD')}</strong>
-            <small>end of {lowest.label}</small>
+          <div className="fc-tile">
+            <span>Highest difference month</span>
+            <strong>
+              {biggestDiff
+                ? `${biggestDiff.diff > 0 ? '+' : ''}${formatMoney(biggestDiff.diff, 'USD')}`
+                : 'None'}
+            </strong>
+            <small>
+              {biggestDiff
+                ? `${biggestDiff.month.label} · actual vs projected`
+                : 'No actual balances yet'}
+            </small>
           </div>
           <div className={`fc-tile${biggestDrop ? ' drop' : ''}`}>
             <span>Biggest monthly drop</span>
@@ -287,6 +321,8 @@ export default function Forecast({ ledger, asOfDate, weddingDate, actuals, setAc
               <th className="num col-flow">Money in</th>
               <th className="num col-flow">Money out</th>
               <th className="num">Change</th>
+              <th className="num">Gold value</th>
+              <th className="num">Another USD (NBK)</th>
               <th className="num">Projected balance</th>
               <th className="num">Actual balance</th>
               <th className="num">Difference</th>
@@ -316,6 +352,8 @@ export default function Forecast({ ledger, asOfDate, weddingDate, actuals, setAc
                   <td className={`num ${m.change < 0 ? 'neg' : m.change > 0 ? 'pos' : ''}`}>
                     {m.change ? formatMoney(m.change, 'USD') : '—'}
                   </td>
+                  <td className="num">{formatMoney(goldUsd, 'USD')}</td>
+                  <td className="num">{formatMoney(otherBankUsd, 'USD')}</td>
                   <td className="num total">{formatMoney(m.projected, 'USD')}</td>
                   <td className="num">
                     <input
@@ -338,11 +376,12 @@ export default function Forecast({ ledger, asOfDate, weddingDate, actuals, setAc
         </table>
       </div>
       <p className="wish-whatif-note">
-        Projected = opening balance + salary + extra income − expenses, closed on the last day
-        of each month (the wedding month closes on the wedding day). Type your real bank balance
-        into “Actual balance” to compare — from then on the whole plan (later months, totals,
-        timeline and purchase forecasts) continues from your real balance. A month is flagged ⚠ when it falls by{' '}
-        {BIG_DROP_SHARE * 100}% or more.
+        Projected = opening balance + salary + extra income − expenses, without the gold and the
+        other bank&apos;s {formatMoney(otherBankUsd, 'USD')}, closed on the last day of each month
+        (the wedding month closes on the wedding day). Type your main bank&apos;s real USD balance
+        into “Actual balance” to compare — from then on the whole
+        plan (later months, totals, timeline and purchase forecasts) continues from it. A month
+        is flagged ⚠ when it falls by {BIG_DROP_SHARE * 100}% or more.
       </p>
     </section>
   )
