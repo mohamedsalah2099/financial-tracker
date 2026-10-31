@@ -1,23 +1,11 @@
-import { useEffect, useLayoutEffect, useMemo, useRef, useState } from 'react'
-import { persist } from './lib/db.js'
+import { useLayoutEffect, useMemo, useRef, useState } from 'react'
 import { buildMonthlyForecast, formatMoney } from './lib/finance.js'
-
-const ACTUALS_KEY = 'wedding-finance-actuals-v1'
 
 // A month whose balance falls by more than this share is flagged as a big drop.
 const BIG_DROP_SHARE = 0.1
 
 const CHART_HEIGHT = 260
 const PAD = { top: 24, right: 20, bottom: 30, left: 56 }
-
-function loadActuals() {
-  try {
-    const parsed = JSON.parse(localStorage.getItem(ACTUALS_KEY) || '{}')
-    return parsed && typeof parsed === 'object' ? parsed : {}
-  } catch {
-    return {}
-  }
-}
 
 /** The typed actual balance for a month, or null when blank / not a number. */
 function actualOf(actuals, key) {
@@ -72,8 +60,8 @@ function ForecastChart({ months, actuals, lowestKey }) {
     .filter((p) => p.value != null)
   const actualValues = actualPoints.map((p) => p.value)
   const { min, max, ticks } = niceScale(
-    Math.max(...months.map((m) => m.balance), ...actualValues),
-    Math.min(...months.map((m) => m.balance), ...actualValues),
+    Math.max(...months.map((m) => m.projected), ...actualValues),
+    Math.min(...months.map((m) => m.projected), ...actualValues),
   )
 
   const innerW = width - PAD.left - PAD.right
@@ -82,7 +70,7 @@ function ForecastChart({ months, actuals, lowestKey }) {
   const x = (i) => PAD.left + i * step
   const y = (v) => PAD.top + innerH - ((v - min) / (max - min)) * innerH
 
-  const linePath = months.map((m, i) => `${i ? 'L' : 'M'}${x(i)},${y(m.balance)}`).join('')
+  const linePath = months.map((m, i) => `${i ? 'L' : 'M'}${x(i)},${y(m.projected)}`).join('')
   const areaPath = `${linePath}L${x(months.length - 1)},${y(Math.max(min, 0))}L${x(0)},${y(Math.max(min, 0))}Z`
 
   const actualPath = actualPoints
@@ -169,7 +157,7 @@ function ForecastChart({ months, actuals, lowestKey }) {
             key={m.key}
             className="fc-dot projected"
             cx={x(i)}
-            cy={y(m.balance)}
+            cy={y(m.projected)}
             r={hover === i ? 5 : 3.5}
           />
         ))}
@@ -213,7 +201,7 @@ function ForecastChart({ months, actuals, lowestKey }) {
           </strong>
           <span>
             <i className="key-line projected" /> Projected
-            <b>{formatMoney(hovered.balance, 'USD')}</b>
+            <b>{formatMoney(hovered.projected, 'USD')}</b>
           </span>
           {hoveredActual != null ? (
             <>
@@ -223,7 +211,7 @@ function ForecastChart({ months, actuals, lowestKey }) {
               </span>
               <span className="fc-tooltip-diff">
                 Difference
-                <b>{formatMoney(hoveredActual - hovered.balance, 'USD')}</b>
+                <b>{formatMoney(hoveredActual - hovered.projected, 'USD')}</b>
               </span>
             </>
           ) : null}
@@ -237,13 +225,7 @@ function ForecastChart({ months, actuals, lowestKey }) {
   )
 }
 
-export default function Forecast({ ledger, asOfDate, weddingDate }) {
-  const [actuals, setActuals] = useState(loadActuals)
-
-  useEffect(() => {
-    persist(ACTUALS_KEY, actuals)
-  }, [actuals])
-
+export default function Forecast({ ledger, asOfDate, weddingDate, actuals, setActuals }) {
   const months = useMemo(
     () => buildMonthlyForecast(ledger, asOfDate, weddingDate),
     [ledger, asOfDate, weddingDate],
@@ -314,7 +296,7 @@ export default function Forecast({ ledger, asOfDate, weddingDate }) {
             {months.map((m) => {
               const raw = actuals[m.key]
               const actual = actualOf(actuals, m.key)
-              const diff = actual == null ? null : actual - m.balance
+              const diff = actual == null ? null : actual - m.projected
               return (
                 <tr
                   key={m.key}
@@ -334,7 +316,7 @@ export default function Forecast({ ledger, asOfDate, weddingDate }) {
                   <td className={`num ${m.change < 0 ? 'neg' : m.change > 0 ? 'pos' : ''}`}>
                     {m.change ? formatMoney(m.change, 'USD') : '—'}
                   </td>
-                  <td className="num total">{formatMoney(m.balance, 'USD')}</td>
+                  <td className="num total">{formatMoney(m.projected, 'USD')}</td>
                   <td className="num">
                     <input
                       className="fc-actual-input"
@@ -358,7 +340,8 @@ export default function Forecast({ ledger, asOfDate, weddingDate }) {
       <p className="wish-whatif-note">
         Projected = opening balance + salary + extra income − expenses, closed on the last day
         of each month (the wedding month closes on the wedding day). Type your real bank balance
-        into “Actual balance” to compare. A month is flagged ⚠ when it falls by{' '}
+        into “Actual balance” to compare — from then on the whole plan (later months, totals,
+        timeline and purchase forecasts) continues from your real balance. A month is flagged ⚠ when it falls by{' '}
         {BIG_DROP_SHARE * 100}% or more.
       </p>
     </section>

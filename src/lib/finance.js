@@ -231,16 +231,21 @@ export function buildMonthlyForecast(ledger, asOfDate, weddingDate) {
     const end = monthEnd < wedding ? monthEnd : wedding
     let inflow = 0
     let outflow = 0
+    let projected = null
 
     while (i < ledger.length && parseDate(ledger[i].date) <= end) {
       const row = ledger[i]
-      if (row.kind !== 'opening') {
+      if (row.kind === 'actual') {
+        // The month's projection before it was corrected to the typed balance.
+        projected = row.projectedUsd
+      } else if (row.kind !== 'opening') {
         if (row.usdDelta > 0) inflow += row.usdDelta
         else outflow -= row.usdDelta
       }
       balance = row.usdBalance
       i += 1
     }
+    projected ??= balance
 
     months.push({
       key: monthKey(cursor),
@@ -249,7 +254,10 @@ export function buildMonthlyForecast(ledger, asOfDate, weddingDate) {
       start,
       inflow,
       outflow,
-      change: balance - start,
+      change: projected - start,
+      /** Projected end balance, starting from last month's actual balance if typed. */
+      projected,
+      /** End balance carried forward: the actual balance if typed, else projected. */
       balance,
       isWeddingMonth: end === wedding,
     })
@@ -339,7 +347,30 @@ export function forecastHomePurchase({
   }
 }
 
-export function runProjection(settings, customExpenses, weddingDate, extraIncome = []) {
+/**
+ * Typed actual balances ({ 'YYYY-MM': value }) as month-end check-ins, oldest first.
+ * Blank or non-numeric entries are ignored, as are months outside asOf..wedding.
+ */
+function actualCheckpoints(actualBalances, asOf, wedding) {
+  return Object.entries(actualBalances ?? {})
+    .map(([key, raw]) => ({ key, value: raw === '' || raw == null ? NaN : Number(raw) }))
+    .filter((c) => Number.isFinite(c.value) && /^\d{4}-\d{2}$/.test(c.key))
+    .map((c) => {
+      const [y, m] = c.key.split('-').map(Number)
+      const monthEnd = new Date(y, m, 0)
+      return { ...c, monthStart: new Date(y, m - 1, 1), end: monthEnd < wedding ? monthEnd : wedding }
+    })
+    .filter((c) => c.monthStart <= wedding && c.end >= startOfDay(asOf))
+    .sort((a, b) => a.end - b.end)
+}
+
+export function runProjection(
+  settings,
+  customExpenses,
+  weddingDate,
+  extraIncome = [],
+  actualBalances = {},
+) {
   const wedding = parseDate(weddingDate)
   const asOf = parseDate(settings.asOfDate) ?? new Date()
 
@@ -366,10 +397,38 @@ export function runProjection(settings, customExpenses, weddingDate, extraIncome
     },
   ]
 
+  // Where you typed a real month-end balance, the projection continues from it.
+  const checkpoints = actualCheckpoints(actualBalances, asOf, wedding)
+  let nextCheckpoint = 0
+  const applyCheckpoint = (c) => {
+    ledger.push({
+      id: `actual-${c.key}`,
+      date: formatDate(c.end),
+      label: `Actual balance ${formatMoney(c.value, 'USD')} (projected ${formatMoney(spendableUsd, 'USD')})`,
+      name: 'Actual balance',
+      detail: `projected ${formatMoney(spendableUsd, 'USD')} — continuing from your real balance`,
+      usdDelta: c.value - spendableUsd,
+      egpExpense: 0,
+      usdFromEgpExpense: 0,
+      expenseRate: null,
+      usdBalance: c.value,
+      projectedUsd: spendableUsd,
+      goldEgp,
+      kind: 'actual',
+    })
+    spendableUsd = c.value
+  }
+
   for (const event of timeline) {
     const eventDate = parseDate(event.date)
     if (!eventDate || eventDate > wedding) continue
     if (eventDate < startOfDay(asOf) && event.kind !== 'opening') continue
+
+    // A month's check-in comes after every event dated on or before its last day.
+    while (nextCheckpoint < checkpoints.length && checkpoints[nextCheckpoint].end < eventDate) {
+      applyCheckpoint(checkpoints[nextCheckpoint])
+      nextCheckpoint += 1
+    }
 
     let usdDelta = 0
     let egpExpense = 0
@@ -419,6 +478,10 @@ export function runProjection(settings, customExpenses, weddingDate, extraIncome
     })
   }
 
+  for (; nextCheckpoint < checkpoints.length; nextCheckpoint += 1) {
+    applyCheckpoint(checkpoints[nextCheckpoint])
+  }
+
   const totalUsdEquivalent = spendableUsd + goldEgp / rate
 
   return {
@@ -435,12 +498,12 @@ export const DEFAULT_SETTINGS = {
   asOfDate: '2026-09-27',
   planStartDate: '2026-09-01',
   weddingDate: '2027-07-02',
-  openingUsd: 40000,
+  openingUsd: 36000,
   nbkUsd: 650,
   goldReserveEgp: 140000,
   usdToEgp: 51,
   salaryBeforeIncrease: 4250,
-  salaryAfterIncrease: 4650,
+  salaryAfterIncrease: 4600,
   salaryIncreaseDate: '2027-02-01',
   excludeJulySalaryAtWedding: true,
 }

@@ -1,5 +1,5 @@
 {
-  "savedAt": "2026-10-23T19:35:23.441Z",
+  "savedAt": "2026-10-31T10:34:22.024Z",
   "expenses": [
     {
       "id": "personal",
@@ -277,7 +277,8 @@
     }
   ],
   "actualBalances": {
-    "2026-09": "42300"
+    "2026-09": "39300",
+    "2026-10": "43550"
   },
   "homePlan": {
     "priceEgp": "4000000",
@@ -288,7 +289,7 @@
     "usdRate": "55"
   },
   "carPlan": {
-    "priceEgp": "1500000",
+    "priceEgp": "1100000",
     "maxSharePct": "35",
     "windowStart": "6",
     "windowEnd": "12",
@@ -301,5 +302,5 @@
     "monthlyCostUsd": "1600",
     "usdRate": "55"
   },
-  "purchaseView": "home"
+  "purchaseView": "both"
 }

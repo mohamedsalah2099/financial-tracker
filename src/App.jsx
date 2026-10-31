@@ -18,12 +18,23 @@ const STORAGE_KEY = 'wedding-finance-tracker-v3'
 const WISHLIST_KEY = 'wedding-finance-wishlist-v1'
 const INCOME_KEY = 'wedding-finance-income-v1'
 const DREAMS_KEY = 'wedding-finance-dreams-v1'
+const ACTUALS_KEY = 'wedding-finance-actuals-v1'
 
 const SETTINGS = DEFAULT_SETTINGS
 
 /** Every expense carries its own USD price; older saved items get the default. */
 function withOwnRate(expense) {
   return { ...expense, usdRate: Number(expense.usdRate) || SETTINGS.usdToEgp }
+}
+
+/** Typed month-end bank balances, { 'YYYY-MM': value }. */
+function loadActuals() {
+  try {
+    const parsed = JSON.parse(localStorage.getItem(ACTUALS_KEY) || '{}')
+    return parsed && typeof parsed === 'object' ? parsed : {}
+  } catch {
+    return {}
+  }
 }
 
 function loadExpenses() {
@@ -151,6 +162,7 @@ function App() {
   const [incomes, setIncomes] = useState(() => loadList(INCOME_KEY))
   const [income, setIncome] = useState(emptyIncome)
   const [dreams, setDreams] = useState(() => loadList(DREAMS_KEY))
+  const [actuals, setActuals] = useState(loadActuals)
   const [dream, setDream] = useState(emptyDream)
 
   useEffect(() => {
@@ -164,6 +176,10 @@ function App() {
   useEffect(() => {
     persist(INCOME_KEY, incomes)
   }, [incomes])
+
+  useEffect(() => {
+    persist(ACTUALS_KEY, actuals)
+  }, [actuals])
 
   useEffect(() => {
     persist(DREAMS_KEY, dreams)
@@ -244,8 +260,8 @@ function App() {
   })
 
   const projection = useMemo(
-    () => runProjection(SETTINGS, expenses, SETTINGS.weddingDate, incomes),
-    [expenses, incomes],
+    () => runProjection(SETTINGS, expenses, SETTINGS.weddingDate, incomes, actuals),
+    [expenses, incomes, actuals],
   )
 
   const ledgerByMonth = useMemo(() => {
@@ -899,6 +915,8 @@ function App() {
           ledger={projection.ledger}
           asOfDate={SETTINGS.asOfDate}
           weddingDate={SETTINGS.weddingDate}
+          actuals={actuals}
+          setActuals={setActuals}
         />
 
         <HomePlanner
