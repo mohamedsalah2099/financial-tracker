@@ -48,6 +48,12 @@ export function rateForDate(date, ownRate, liveRate, today) {
   return liveRate && today && date > today ? liveRate : ownRate
 }
 
+/** An expense's rate: its own once marked paid, otherwise by date (see rateForDate). */
+export function itemRate(item, fallbackRate, liveRate, today) {
+  const own = expenseRate(item, fallbackRate)
+  return item.paid ? own : rateForDate(item.date, own, liveRate, today)
+}
+
 export function expenseSpendableUsd(expense, usdToEgpRate) {
   const amount = Number(expense.amount) || 0
   if (expense.currency === 'USD') return amount
@@ -89,9 +95,9 @@ export function salaryForWorkMonth(workMonthDate, settings) {
     workMonthDate.getMonth(),
   )
   if (increaseFrom && workStart >= firstDayOfMonth(increaseFrom.getFullYear(), increaseFrom.getMonth())) {
-    return settings.salaryAfterIncrease
+    return Number(settings.salaryAfterIncrease) || 0
   }
-  return settings.salaryBeforeIncrease
+  return Number(settings.salaryBeforeIncrease) || 0
 }
 
 const SALARY_PAY_DAY = 5
@@ -153,6 +159,7 @@ function normalizeCustomExpense(expense, fallbackRate) {
     amountUsd: expense.currency === 'USD' ? Number(expense.amount) || 0 : 0,
     amountEgp: expense.currency === 'EGP' ? Number(expense.amount) || 0 : 0,
     rate: expenseRate(expense, fallbackRate),
+    paid: Boolean(expense.paid) && expense.type !== 'monthly',
     recurring: expense.type === 'monthly',
     monthEnd: expense.monthEnd || '',
     locked: false,
@@ -169,7 +176,8 @@ export function expandCustomExpenses(customExpenses, weddingDate, fallbackRate, 
     if (!base.recurring) {
       const on = parseDate(base.date)
       if (on && on <= wedding) {
-        events.push({ ...base, id: raw.id, rate: rateForDate(base.date, base.rate, liveRate, today) })
+        const rate = base.paid ? base.rate : rateForDate(base.date, base.rate, liveRate, today)
+        events.push({ ...base, id: raw.id, rate })
       }
       continue
     }
@@ -294,11 +302,11 @@ export function buildMonthlyForecast(ledger, asOfDate, weddingDate) {
 
 /**
  * Month-by-month total balance (spendable + gold, in USD) after the wedding, and
- * whether a home fits the rule "price ≤ maxShare × total balance" each month.
+ * whether a purchase (home, car or both) fits the rule "price ≤ maxShare × total balance" each month.
  * After the wedding: salaryAfterIncrease lands once a month (the first
  * one is the July salary paid in August) and monthlyCostUsd goes out.
  */
-export function forecastHomePurchase({
+export function forecastPurchase({
   settings,
   startTotalUsd,
   weddingDate,
@@ -364,7 +372,7 @@ export function forecastHomePurchase({
     shortfallUsd,
     /** Extra saving per month (from the wedding) that would make it fit by windowEnd. */
     extraPerMonthUsd: shortfallUsd / windowEnd,
-    /** The most expensive home the rule allows at the end of the window. */
+    /** The highest price the rule allows at the end of the window. */
     maxPriceEgpAtWindowEnd: windowEndMonth.limitUsd * rate,
     rate,
   }
@@ -546,6 +554,8 @@ export const DEFAULT_SETTINGS = {
   salaryAfterIncrease: 4600,
   salaryIncreaseDate: '2027-01-01',
   excludeJulySalaryAtWedding: true,
+  /** Target total (spendable + gold) for the wedding day; 0 = no goal. */
+  goalUsd: 59000,
 }
 
 export const DEFAULT_EXPENSES = [

@@ -1,6 +1,6 @@
 import { useEffect, useMemo, useState } from 'react'
 import { persist } from './lib/db.js'
-import { forecastHomePurchase, formatMoney } from './lib/finance.js'
+import { forecastPurchase, formatMoney } from './lib/finance.js'
 
 const VIEW_KEY = 'wedding-finance-purchase-view-v1'
 
@@ -105,7 +105,7 @@ function usePlan(kind) {
   return [plan, setPlan]
 }
 
-export default function HomePlanner({ settings, startTotalUsd, weddingDate, extraIncome }) {
+export default function PurchasePlanner({ settings, startTotalUsd, weddingDate, extraIncome }) {
   const [kind, setKind] = useState(loadView)
   const plans = { home: usePlan('home'), car: usePlan('car'), both: usePlan('both') }
   const [homePlan, setHomePlan] = plans.home
@@ -131,7 +131,7 @@ export default function HomePlanner({ settings, startTotalUsd, weddingDate, extr
 
   const result = useMemo(
     () =>
-      forecastHomePurchase({
+      forecastPurchase({
         settings: { ...settings, usdToEgp: usdRate },
         startTotalUsd,
         weddingDate,

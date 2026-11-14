@@ -8,10 +8,14 @@
  * - `persist(key, value)` writes localStorage immediately and saves the
  *   whole database to the file shortly after (debounced).
  *
- * Deployed (Vercel or any static host) — no server can write files:
- * - data/db.json is bundled into the build. A browser loads it on its first
- *   visit, and again whenever a newer db.json is deployed (by `savedAt`).
- * - Edits made on the deployed site stay in that browser's localStorage.
+ * Deployed on Vercel — api/db.js answers /api/db the same way, but stores the
+ * database in Upstash Redis, so every logged-in device shares the same data.
+ * Requests carry the login password (setSyncPassword) in X-App-Password.
+ *
+ * Any other static host (or Vercel without storage set up) — nothing can save:
+ * - data/db.json, if present at build time, is bundled in. A browser loads it on
+ *   its first visit, and again whenever a newer one is deployed (by `savedAt`).
+ * - Edits stay in that browser's localStorage.
  */
 
 const API = '/api/db'
@@ -35,6 +39,7 @@ const TABLES = {
   extraIncome: { key: 'wedding-finance-income-v1' },
   dreamIncome: { key: 'wedding-finance-dreams-v1' },
   actualBalances: { key: 'wedding-finance-actuals-v1' },
+  settings: { key: 'wedding-finance-settings-v1' },
   homePlan: { key: 'wedding-finance-home-plan-v1' },
   carPlan: { key: 'wedding-finance-car-plan-v1' },
   bothPlan: { key: 'wedding-finance-both-plan-v1' },
@@ -43,6 +48,16 @@ const TABLES = {
 
 let fileAvailable = false
 let saveTimer = null
+let syncPassword = ''
+
+/** The login password, sent with every database request (the dev server ignores it). */
+export function setSyncPassword(password) {
+  syncPassword = password || ''
+}
+
+function apiHeaders(extra = {}) {
+  return { ...extra, 'X-App-Password': encodeURIComponent(syncPassword) }
+}
 
 function readStorage(key) {
   try {
@@ -78,7 +93,7 @@ async function saveNow() {
   try {
     const res = await fetch(API, {
       method: 'PUT',
-      headers: { 'Content-Type': 'application/json' },
+      headers: apiHeaders({ 'Content-Type': 'application/json' }),
       body: JSON.stringify(snapshot()),
     })
     if (!res.ok) throw new Error(`HTTP ${res.status}`)
@@ -113,7 +128,7 @@ function hydrateFromBundle() {
 export async function hydrateFromFile() {
   let res
   try {
-    res = await fetch(API, { cache: 'no-store' })
+    res = await fetch(API, { cache: 'no-store', headers: apiHeaders() })
   } catch {
     res = null
   }
@@ -152,7 +167,7 @@ if (typeof window !== 'undefined') {
     try {
       fetch(API, {
         method: 'PUT',
-        headers: { 'Content-Type': 'application/json' },
+        headers: apiHeaders({ 'Content-Type': 'application/json' }),
         body: JSON.stringify(snapshot()),
         keepalive: true,
       })

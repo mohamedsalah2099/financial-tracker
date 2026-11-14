@@ -1,14 +1,19 @@
 import { useState } from 'react'
+import { PASSWORD } from './password.js'
 
-const PASSWORD = 'mosalah'
 const AUTH_KEY = 'wedding-finance-logged-in'
 
-export function isLoggedIn() {
+/** The password this browser logged in with ('' if none); the sync API needs it too. */
+export function savedPassword() {
   try {
-    return localStorage.getItem(AUTH_KEY) === '1'
+    return localStorage.getItem(AUTH_KEY) || ''
   } catch {
-    return false
+    return ''
   }
+}
+
+export function isLoggedIn() {
+  return savedPassword() === PASSWORD
 }
 
 export function logout() {
@@ -23,19 +28,21 @@ export function logout() {
 export default function Login({ onLogin }) {
   const [value, setValue] = useState('')
   const [error, setError] = useState(false)
+  const [busy, setBusy] = useState(false)
 
-  const submit = (event) => {
+  const submit = async (event) => {
     event.preventDefault()
     if (value !== PASSWORD) {
       setError(true)
       return
     }
     try {
-      localStorage.setItem(AUTH_KEY, '1')
+      localStorage.setItem(AUTH_KEY, value)
     } catch {
       // still let them in for this visit
     }
-    onLogin()
+    setBusy(true)
+    await onLogin(value)
   }
 
   return (
@@ -50,8 +57,8 @@ export default function Login({ onLogin }) {
         }}
         autoFocus
       />
-      <button type="submit" className="primary">
-        Login
+      <button type="submit" className="primary" disabled={busy}>
+        {busy ? 'Loading…' : 'Login'}
       </button>
       {error ? <p className="login-error">Wrong password</p> : null}
     </form>

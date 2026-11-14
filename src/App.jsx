@@ -2,18 +2,17 @@ import { Fragment, useEffect, useMemo, useState } from 'react'
 import {
   DEFAULT_EXPENSES,
   DEFAULT_SETTINGS,
-  expenseRate,
   expenseSpendableUsd,
   formatDate,
   formatMoney,
+  itemRate,
   parseDate,
-  rateForDate,
   runProjection,
 } from './lib/finance.js'
 import { useLiveUsdToEgp } from './lib/rate.js'
 import { persist } from './lib/db.js'
 import Forecast from './Forecast.jsx'
-import HomePlanner from './HomePlanner.jsx'
+import PurchasePlanner from './PurchasePlanner.jsx'
 import { logout } from './Login.jsx'
 import './App.css'
 import { Analytics } from '@vercel/analytics/react'
@@ -23,8 +22,23 @@ const WISHLIST_KEY = 'wedding-finance-wishlist-v1'
 const INCOME_KEY = 'wedding-finance-income-v1'
 const DREAMS_KEY = 'wedding-finance-dreams-v1'
 const ACTUALS_KEY = 'wedding-finance-actuals-v1'
+const SETTINGS_KEY = 'wedding-finance-settings-v1'
 
-const SETTINGS = DEFAULT_SETTINGS
+/** Saved settings on top of the defaults, so new settings get their default value. */
+function loadSettings() {
+  try {
+    const saved = JSON.parse(localStorage.getItem(SETTINGS_KEY) || '{}')
+    return { ...DEFAULT_SETTINGS, ...(saved && typeof saved === 'object' ? saved : {}) }
+  } catch {
+    return DEFAULT_SETTINGS
+  }
+}
+
+/** Whole months from today until the wedding (at least 1). */
+function monthsUntil(today, wedding) {
+  const t = parseDate(today)
+  return Math.max(1, (wedding.getFullYear() - t.getFullYear()) * 12 + wedding.getMonth() - t.getMonth())
+}
 
 /** crypto.randomUUID only exists on HTTPS/localhost; fall back on plain-HTTP LAN access. */
 function newId() {
@@ -33,7 +47,7 @@ function newId() {
 
 /** Every expense carries its own USD price; older saved items get the default. */
 function withOwnRate(expense) {
-  return { ...expense, usdRate: Number(expense.usdRate) || SETTINGS.usdToEgp }
+  return { ...expense, usdRate: Number(expense.usdRate) || DEFAULT_SETTINGS.usdToEgp }
 }
 
 /** Typed month-end bank balances, { 'YYYY-MM': value }. */
@@ -76,6 +90,7 @@ const RULE_FIELDS = [
     label: 'Exclude July salary (paid in August)',
     format: 'bool',
   },
+  { key: 'goalUsd', label: 'Savings goal on wedding day (total)', format: 'USD' },
 ]
 
 function formatRuleValue(key, value, format) {
@@ -175,6 +190,10 @@ function App() {
   const [dreams, setDreams] = useState(() => loadList(DREAMS_KEY))
   const [actuals, setActuals] = useState(loadActuals)
   const [dream, setDream] = useState(emptyDream)
+  const [settings, setSettings] = useState(loadSettings)
+  const [editingSettings, setEditingSettings] = useState(false)
+  const [editingExpenseId, setEditingExpenseId] = useState(null)
+  const [editingIncomeId, setEditingIncomeId] = useState(null)
 
   useEffect(() => {
     persist(STORAGE_KEY, { expenses })
@@ -195,6 +214,21 @@ function App() {
   useEffect(() => {
     persist(DREAMS_KEY, dreams)
   }, [dreams])
+
+  useEffect(() => {
+    persist(SETTINGS_KEY, settings)
+  }, [settings])
+
+  const setSetting = (key, format) => (e) => {
+    const { value, checked } = e.target
+    if (format === 'bool') return setSettings((s) => ({ ...s, [key]: checked }))
+    if (key.endsWith('Date')) {
+      // Dates can't be blank: the whole plan depends on them.
+      if (value) setSettings((s) => ({ ...s, [key]: value }))
+      return undefined
+    }
+    return setSettings((s) => ({ ...s, [key]: value === '' ? '' : Number(value) }))
+  }
 
   const addDream = (event) => {
     event.preventDefault()
@@ -218,24 +252,37 @@ function App() {
   const addIncome = (event) => {
     event.preventDefault()
     if (!income.label.trim() || !(Number(income.amount) > 0) || !income.date) return
+    const saved = {
+      ...income,
+      id: editingIncomeId ?? newId(),
+      label: income.label.trim(),
+      amount: Number(income.amount),
+    }
+    // Editing replaces the item (same id); adding appends it.
     setIncomes((prev) =>
-      [
-        ...prev,
-        {
-          ...income,
-          id: newId(),
-          label: income.label.trim(),
-          amount: Number(income.amount),
-        },
-      ].sort((a, b) => a.date.localeCompare(b.date)),
+      [...prev.filter((i) => i.id !== editingIncomeId), saved].sort((a, b) =>
+        a.date.localeCompare(b.date),
+      ),
     )
     setIncome(emptyIncome())
+    setEditingIncomeId(null)
+  }
+
+  const startEditIncome = (item) => {
+    setIncome({ ...emptyIncome(), ...item, amount: String(item.amount) })
+    setEditingIncomeId(item.id)
+  }
+
+  const cancelEditIncome = () => {
+    setIncome(emptyIncome())
+    setEditingIncomeId(null)
   }
 
   const today = formatDate(new Date())
 
   const removeIncome = (id) => {
     setIncomes((prev) => prev.filter((i) => i.id !== id))
+    if (id === editingIncomeId) cancelEditIncome()
   }
 
   const addWish = (event) => {
@@ -262,7 +309,7 @@ function App() {
     })
   }
 
-  const wedding = parseDate(SETTINGS.weddingDate)
+  const wedding = parseDate(settings.weddingDate)
   const daysToWedding = Math.round((wedding - parseDate(today)) / 86400000)
   const weddingLabel = wedding.toLocaleDateString('en-GB', {
     day: 'numeric',
@@ -271,23 +318,44 @@ function App() {
   })
 
   // Today's EGP per $1 from the currency API; used for everything not yet paid.
-  const liveRate = useLiveUsdToEgp(SETTINGS.usdToEgp)
+  const liveRate = useLiveUsdToEgp(settings.usdToEgp)
   const rate = liveRate.rate
-  /** An item's rate: its own if already paid (dated today or earlier), else the live rate. */
-  const rateFor = (item) => rateForDate(item.date, expenseRate(item, SETTINGS.usdToEgp), rate, today)
-  const liveSettings = useMemo(() => ({ ...SETTINGS, usdToEgp: rate }), [rate])
+  /** An item's rate: its own if paid (marked, or dated today or earlier), else the live rate. */
+  const rateFor = (item) => itemRate(item, settings.usdToEgp, rate, today)
+  const liveSettings = useMemo(() => ({ ...settings, usdToEgp: rate }), [settings, rate])
 
   const projection = useMemo(
     () =>
       runProjection(
-        { ...SETTINGS, liveUsdToEgp: rate, today },
+        { ...settings, liveUsdToEgp: rate, today },
         expenses,
-        SETTINGS.weddingDate,
+        settings.weddingDate,
         incomes,
         actuals,
       ),
-    [expenses, incomes, actuals, rate, today],
+    [settings, expenses, incomes, actuals, rate, today],
   )
+
+  // What the wedding day looks like if the dollar keeps rising (only upcoming EGP items move).
+  const scenarios = useMemo(() => {
+    const at = (factor, label) => {
+      const r = Math.round(rate * factor * 100) / 100
+      const p = runProjection(
+        { ...settings, liveUsdToEgp: r, today },
+        expenses,
+        settings.weddingDate,
+        incomes,
+        actuals,
+      )
+      return { label, rate: r, total: p.totalUsdEquivalent }
+    }
+    return [at(1, 'Live'), at(1.1, '+10%'), at(1.2, '+20%')]
+  }, [settings, expenses, incomes, actuals, rate, today])
+
+  // Savings goal: how far the wedding-day total is from it, and the extra per month to close it.
+  const goalUsd = Number(settings.goalUsd) || 0
+  const goalGap = goalUsd - projection.totalUsdEquivalent
+  const goalPerMonth = goalGap / monthsUntil(today, wedding)
 
   const ledgerByMonth = useMemo(() => {
     const groups = []
@@ -347,20 +415,51 @@ function App() {
   const addExpense = (event) => {
     event.preventDefault()
     if (!draft.label.trim() || !draft.amount) return
-    setExpenses((prev) => [
-      ...prev,
-      {
-        ...draft,
-        id: newId(),
-        amount: Number(draft.amount),
-        usdRate: Number(draft.usdRate) || rate,
-      },
-    ])
+    const saved = {
+      ...draft,
+      id: editingExpenseId ?? newId(),
+      amount: Number(draft.amount),
+      usdRate: Number(draft.usdRate) || rate,
+    }
+    // Editing replaces the item in place (same id); adding appends it.
+    setExpenses((prev) =>
+      editingExpenseId ? prev.map((e) => (e.id === editingExpenseId ? saved : e)) : [...prev, saved],
+    )
     setDraft(emptyExpense())
+    setEditingExpenseId(null)
+  }
+
+  const startEditExpense = (expense) => {
+    setDraft({
+      ...emptyExpense(),
+      ...expense,
+      amount: String(expense.amount),
+      usdRate: expense.usdRate ?? '',
+      monthEnd: expense.monthEnd ?? '',
+    })
+    setEditingExpenseId(expense.id)
+  }
+
+  const cancelEditExpense = () => {
+    setDraft(emptyExpense())
+    setEditingExpenseId(null)
+  }
+
+  /** Paid items keep their own rate; marking an upcoming EGP item paid records today's rate. */
+  const togglePaid = (id) => {
+    setExpenses((prev) =>
+      prev.map((e) => {
+        if (e.id !== id) return e
+        if (e.paid) return { ...e, paid: false }
+        const recordRate = e.currency === 'EGP' && e.date > today
+        return { ...e, paid: true, usdRate: recordRate ? rate : e.usdRate }
+      }),
+    )
   }
 
   const removeExpense = (id) => {
     setExpenses((prev) => prev.filter((e) => e.id !== id))
+    if (id === editingExpenseId) cancelEditExpense()
   }
 
   const resetExpenses = () => {
@@ -411,7 +510,7 @@ function App() {
           </ul>
         </div>
         <aside className="hero-card">
-          <p className="hero-label">Remaining on {SETTINGS.weddingDate}</p>
+          <p className="hero-label">Remaining on {settings.weddingDate}</p>
           <p className="hero-total">
             {formatMoney(projection.totalUsdEquivalent, 'USD')}
             <span className="hero-sub"> total equivalent</span>
@@ -420,24 +519,61 @@ function App() {
             <span>Spendable {formatMoney(projection.finalUsd, 'USD')}</span>
             <span>Gold {formatMoney(projection.goldUsd, 'USD')}</span>
           </div>
+          {goalUsd > 0 ? (
+            <p className={`hero-goal ${goalGap > 0 ? 'short' : 'ok'}`}>
+              {goalGap > 0
+                ? `Goal ${formatMoney(goalUsd, 'USD')}: ${formatMoney(goalGap, 'USD')} short. Save ${formatMoney(goalPerMonth, 'USD')} more per month`
+                : `Goal ${formatMoney(goalUsd, 'USD')}: on track, ${formatMoney(-goalGap, 'USD')} ahead`}
+            </p>
+          ) : (
+            <p className="hero-goal">Set a savings goal under “Starting position &amp; rules”.</p>
+          )}
         </aside>
       </header>
 
       <main className="layout">
         <div className="main-col">
           <div className="col-stack">
-            <section className="panel panel-locked" aria-readonly="true">
+            <section className="panel panel-locked">
               <div className="panel-head">
                 <h2>Starting position &amp; rules</h2>
-                <span className="locked-badge">Fixed scenario</span>
+                <button
+                  type="button"
+                  className="settings-toggle"
+                  onClick={() => setEditingSettings((v) => !v)}
+                >
+                  {editingSettings ? '✓ Done' : '✎ Edit'}
+                </button>
               </div>
               <dl className="rules-grid">
                 {RULE_FIELDS.map(({ key, label, format }) => (
                   <div key={key} className="rule-item">
-                    <dt>{label}</dt>
+                    <dt>
+                      {editingSettings && key === 'usdToEgp'
+                        ? 'Default rate (offline, and past items without a rate)'
+                        : label}
+                    </dt>
                     <dd>
-                      {formatRuleValue(key, key === 'usdToEgp' ? rate : SETTINGS[key], format)}
-                      {key === 'usdToEgp' ? (
+                      {editingSettings ? (
+                        format === 'bool' ? (
+                          <input
+                            type="checkbox"
+                            checked={Boolean(settings[key])}
+                            onChange={setSetting(key, format)}
+                          />
+                        ) : (
+                          <input
+                            className="rule-input"
+                            type={key.endsWith('Date') ? 'date' : 'number'}
+                            step="any"
+                            value={settings[key] ?? ''}
+                            onChange={setSetting(key, format)}
+                          />
+                        )
+                      ) : (
+                        formatRuleValue(key, key === 'usdToEgp' ? rate : settings[key], format)
+                      )}
+                      {key === 'usdToEgp' && !editingSettings ? (
                         <small className="rate-date">
                           {liveRate.date
                             ? ` · rate of ${liveRate.date}${liveRate.status === 'cached' ? ' (last saved)' : ''}`
@@ -448,6 +584,15 @@ function App() {
                   </div>
                 ))}
               </dl>
+              {editingSettings ? (
+                <button
+                  type="button"
+                  className="ghost"
+                  onClick={() => setSettings(DEFAULT_SETTINGS)}
+                >
+                  Reset settings to defaults
+                </button>
+              ) : null}
             </section>
 
 
@@ -611,6 +756,15 @@ function App() {
                         <span className="wish-actions">
                           <button
                             type="button"
+                            className="wish-icon"
+                            onClick={() => startEditIncome(item)}
+                            aria-label={`Edit ${item.label}`}
+                            title="Edit"
+                          >
+                            ✎
+                          </button>
+                          <button
+                            type="button"
                             className="wish-icon danger"
                             onClick={() => removeIncome(item.id)}
                             aria-label={`Remove ${item.label}`}
@@ -668,12 +822,20 @@ function App() {
                   type="submit"
                   className="wish-add income"
                   disabled={!income.label.trim() || !(Number(income.amount) > 0)}
-                  aria-label="Add income"
-                  title="Add income"
+                  aria-label={editingIncomeId ? 'Save income' : 'Add income'}
+                  title={editingIncomeId ? 'Save changes' : 'Add income'}
                 >
-                  +
+                  {editingIncomeId ? '✓' : '+'}
                 </button>
               </form>
+              {editingIncomeId ? (
+                <p className="editing-note">
+                  Editing an income ·{' '}
+                  <button type="button" className="link-btn" onClick={cancelEditIncome}>
+                    Cancel
+                  </button>
+                </p>
+              ) : null}
               <p className="wish-whatif-note">
                 Added to spendable USD on its date · EGP at {rate} per $1 (live) if still to come
               </p>
@@ -805,7 +967,13 @@ function App() {
             ) : null}
             <ul className="wish-list expense-compact" hidden={filteredExpenses.length === 0}>
               {filteredExpenses.map((expense) => (
-                <li key={expense.id}>
+                <li
+                  key={expense.id}
+                  className={[
+                    expense.paid ? 'is-paid' : '',
+                    expense.id === editingExpenseId ? 'is-editing' : '',
+                  ].join(' ')}
+                >
                   <span
                     className={`wish-dot ${expense.type === 'monthly' ? 'monthly' : 'expense'}`}
                     aria-hidden="true"
@@ -818,6 +986,7 @@ function App() {
                             expense.monthEnd ? expense.monthEnd.slice(0, 7) : 'wedding'
                           }`
                         : expense.date}
+                      {expense.paid ? <span className="paid-tag">✓ Paid</span> : null}
                     </span>
                   </span>
                   <span className="exp-amount">
@@ -836,6 +1005,27 @@ function App() {
                     </small>
                   </span>
                   <span className="wish-actions">
+                    {expense.type === 'monthly' ? null : (
+                      <button
+                        type="button"
+                        className={`wish-icon${expense.paid ? ' paid-on' : ''}`}
+                        onClick={() => togglePaid(expense.id)}
+                        aria-pressed={Boolean(expense.paid)}
+                        aria-label={`${expense.paid ? 'Unmark' : 'Mark'} ${expense.label} as paid`}
+                        title={expense.paid ? 'Paid. Click to unmark' : 'Mark as paid (keeps its rate)'}
+                      >
+                        ✓
+                      </button>
+                    )}
+                    <button
+                      type="button"
+                      className="wish-icon"
+                      onClick={() => startEditExpense(expense)}
+                      aria-label={`Edit ${expense.label}`}
+                      title="Edit"
+                    >
+                      ✎
+                    </button>
                     <button
                       type="button"
                       className="wish-icon danger"
@@ -943,8 +1133,13 @@ function App() {
                 </p>
               ) : null}
               <button type="submit" className="primary">
-                Add expense
+                {editingExpenseId ? 'Save changes' : 'Add expense'}
               </button>
+              {editingExpenseId ? (
+                <button type="button" className="link-btn form-cancel" onClick={cancelEditExpense}>
+                  Cancel editing
+                </button>
+              ) : null}
             </form>
             <button type="button" className="ghost" onClick={resetExpenses}>
               Reset default expenses
@@ -956,16 +1151,18 @@ function App() {
           ledger={projection.ledger}
           goldUsd={projection.goldUsd}
           otherBankUsd={projection.otherBankUsd}
-          asOfDate={SETTINGS.asOfDate}
-          weddingDate={SETTINGS.weddingDate}
+          asOfDate={settings.asOfDate}
+          weddingDate={settings.weddingDate}
           actuals={actuals}
           setActuals={setActuals}
+          today={today}
+          scenarios={scenarios}
         />
 
-        <HomePlanner
+        <PurchasePlanner
           settings={liveSettings}
           startTotalUsd={projection.totalUsdEquivalent}
-          weddingDate={SETTINGS.weddingDate}
+          weddingDate={settings.weddingDate}
           extraIncome={incomes}
         />
 

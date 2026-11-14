@@ -233,6 +233,8 @@ export default function Forecast({
   weddingDate,
   actuals,
   setActuals,
+  today,
+  scenarios = [],
 }) {
   // Balances here are the main bank only — the same as the typed actual balances. The
   // gold and the other bank's fixed USD are shown in their own columns.
@@ -262,6 +264,9 @@ export default function Forecast({
     const diff = actual - m.projected
     return best && Math.abs(best.diff) >= Math.abs(diff) ? best : { month: m, diff }
   }, null)
+  // The latest month that has already ended but has no actual balance yet.
+  const needsActual =
+    months.filter((m) => m.endDate < today && actualOf(actuals, m.key) == null).at(-1) ?? null
   const isBigDrop = (m) => m.change < 0 && -m.change >= m.start * BIG_DROP_SHARE
 
   const setActual = (key, value) => {
@@ -308,10 +313,45 @@ export default function Forecast({
             <strong>{biggestDrop ? formatMoney(biggestDrop.change, 'USD') : 'None'}</strong>
             <small>{biggestDrop ? biggestDrop.label : 'Balance never falls'}</small>
           </div>
+          {scenarios.length > 1 ? (
+            <div className="fc-tile">
+              <span>Wedding day if the dollar rises</span>
+              <ul className="fc-scenarios">
+                {scenarios.map((s, i) => (
+                  <li key={s.label}>
+                    <span>
+                      {s.label} · {s.rate}
+                    </span>
+                    <b>{formatMoney(s.total, 'USD')}</b>
+                    {i > 0 ? (
+                      <small className="neg">
+                        {formatMoney(s.total - scenarios[0].total, 'USD')}
+                      </small>
+                    ) : null}
+                  </li>
+                ))}
+              </ul>
+              <small>Upcoming EGP items only; USD items don&apos;t change</small>
+            </div>
+          ) : null}
         </div>
 
         <ForecastChart months={months} actuals={actuals} lowestKey={lowest.key} />
       </div>
+
+      {needsActual ? (
+        <p className="fc-reminder">
+          📝 {needsActual.label} has ended. Enter your actual balance for it, so the plan
+          continues from your real numbers.{' '}
+          <button
+            type="button"
+            className="link-btn"
+            onClick={() => document.getElementById(`actual-${needsActual.key}`)?.focus()}
+          >
+            Enter it now
+          </button>
+        </p>
+      ) : null}
 
       <div className="table-wrap">
         <table className="fc-table">
@@ -339,6 +379,7 @@ export default function Forecast({
                   className={[
                     m.key === lowest.key ? 'is-lowest' : '',
                     isBigDrop(m) ? 'is-drop' : '',
+                    m === needsActual ? 'needs-actual' : '',
                   ].join(' ')}
                 >
                   <td>
@@ -357,6 +398,7 @@ export default function Forecast({
                   <td className="num total">{formatMoney(m.projected, 'USD')}</td>
                   <td className="num">
                     <input
+                      id={`actual-${m.key}`}
                       className="fc-actual-input"
                       type="number"
                       step="0.01"
