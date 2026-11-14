@@ -234,7 +234,6 @@ export default function Forecast({
   actuals,
   setActuals,
   today,
-  scenarios = [],
 }) {
   // Balances here are the main bank only — the same as the typed actual balances. The
   // gold and the other bank's fixed USD are shown in their own columns.
@@ -313,27 +312,6 @@ export default function Forecast({
             <strong>{biggestDrop ? formatMoney(biggestDrop.change, 'USD') : 'None'}</strong>
             <small>{biggestDrop ? biggestDrop.label : 'Balance never falls'}</small>
           </div>
-          {scenarios.length > 1 ? (
-            <div className="fc-tile">
-              <span>Wedding day if the dollar rises</span>
-              <ul className="fc-scenarios">
-                {scenarios.map((s, i) => (
-                  <li key={s.label}>
-                    <span>
-                      {s.label} · {s.rate}
-                    </span>
-                    <b>{formatMoney(s.total, 'USD')}</b>
-                    {i > 0 ? (
-                      <small className="neg">
-                        {formatMoney(s.total - scenarios[0].total, 'USD')}
-                      </small>
-                    ) : null}
-                  </li>
-                ))}
-              </ul>
-              <small>Upcoming EGP items only; USD items don&apos;t change</small>
-            </div>
-          ) : null}
         </div>
 
         <ForecastChart months={months} actuals={actuals} lowestKey={lowest.key} />

@@ -336,22 +336,6 @@ function App() {
     [settings, expenses, incomes, actuals, rate, today],
   )
 
-  // What the wedding day looks like if the dollar keeps rising (only upcoming EGP items move).
-  const scenarios = useMemo(() => {
-    const at = (factor, label) => {
-      const r = Math.round(rate * factor * 100) / 100
-      const p = runProjection(
-        { ...settings, liveUsdToEgp: r, today },
-        expenses,
-        settings.weddingDate,
-        incomes,
-        actuals,
-      )
-      return { label, rate: r, total: p.totalUsdEquivalent }
-    }
-    return [at(1, 'Live'), at(1.1, '+10%'), at(1.2, '+20%')]
-  }, [settings, expenses, incomes, actuals, rate, today])
-
   // Savings goal: how far the wedding-day total is from it, and the extra per month to close it.
   const goalUsd = Number(settings.goalUsd) || 0
   const goalGap = goalUsd - projection.totalUsdEquivalent
@@ -1156,7 +1140,6 @@ function App() {
           actuals={actuals}
           setActuals={setActuals}
           today={today}
-          scenarios={scenarios}
         />
 
         <PurchasePlanner

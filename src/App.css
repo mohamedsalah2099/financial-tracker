@@ -2215,30 +2215,7 @@ th.num {
   color: #64748b;
 }
 
-/* Financial forecast: rate scenarios and the actual-balance reminder */
-.fc-scenarios {
-  list-style: none;
-  margin: 0.2rem 0;
-  padding: 0;
-  display: grid;
-  gap: 0.15rem;
-  font-size: 0.8rem;
-}
-
-.fc-scenarios li {
-  display: flex;
-  align-items: baseline;
-  gap: 0.4rem;
-}
-
-.fc-scenarios li > span {
-  flex: 1;
-}
-
-.fc-scenarios small {
-  font-size: 0.7rem;
-}
-
+/* Financial forecast: the actual-balance reminder */
 .fc-reminder {
   margin: 0 0 0.75rem;
   padding: 0.6rem 0.85rem;
