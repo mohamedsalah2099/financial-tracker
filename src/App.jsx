@@ -315,10 +315,11 @@ function App() {
   /** Matches the name or the date (e.g. "2026-09" finds everything in September). */
   const filteredExpenses = useMemo(() => {
     const q = expenseQuery.trim().toLowerCase()
-    if (!q) return expenses
-    return expenses.filter(
-      (e) => e.label.toLowerCase().includes(q) || (e.date || '').includes(q),
-    )
+    const matches = q
+      ? expenses.filter((e) => e.label.toLowerCase().includes(q) || (e.date || '').includes(q))
+      : expenses
+    // Oldest first; items without a date go last.
+    return [...matches].sort((a, b) => (a.date || '9999').localeCompare(b.date || '9999'))
   }, [expenses, expenseQuery])
 
   const filteredWishlist = useMemo(() => {
