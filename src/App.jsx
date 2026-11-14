@@ -7,8 +7,10 @@ import {
   formatDate,
   formatMoney,
   parseDate,
+  rateForDate,
   runProjection,
 } from './lib/finance.js'
+import { useLiveUsdToEgp } from './lib/rate.js'
 import { persist } from './lib/db.js'
 import Forecast from './Forecast.jsx'
 import HomePlanner from './HomePlanner.jsx'
@@ -61,7 +63,7 @@ const RULE_FIELDS = [
   { key: 'asOfDate', label: 'As-of date' },
   { key: 'weddingDate', label: 'Wedding date' },
   { key: 'planStartDate', label: 'Plan salaries from (work month)' },
-  { key: 'usdToEgp', label: 'USD → EGP rate' },
+  { key: 'usdToEgp', label: 'USD → EGP rate (live, for upcoming items)' },
   { key: 'openingUsd', label: 'Opening USD', format: 'USD' },
   { key: 'nbkUsd', label: 'NBK Bank account (USD)', format: 'USD' },
   { key: 'goldReserveEgp', label: 'Gold reserve (EGP, not spent)', format: 'EGP' },
@@ -268,9 +270,23 @@ function App() {
     year: 'numeric',
   })
 
+  // Today's EGP per $1 from the currency API; used for everything not yet paid.
+  const liveRate = useLiveUsdToEgp(SETTINGS.usdToEgp)
+  const rate = liveRate.rate
+  /** An item's rate: its own if already paid (dated today or earlier), else the live rate. */
+  const rateFor = (item) => rateForDate(item.date, expenseRate(item, SETTINGS.usdToEgp), rate, today)
+  const liveSettings = useMemo(() => ({ ...SETTINGS, usdToEgp: rate }), [rate])
+
   const projection = useMemo(
-    () => runProjection(SETTINGS, expenses, SETTINGS.weddingDate, incomes, actuals),
-    [expenses, incomes, actuals],
+    () =>
+      runProjection(
+        { ...SETTINGS, liveUsdToEgp: rate, today },
+        expenses,
+        SETTINGS.weddingDate,
+        incomes,
+        actuals,
+      ),
+    [expenses, incomes, actuals, rate, today],
   )
 
   const ledgerByMonth = useMemo(() => {
@@ -314,17 +330,17 @@ function App() {
   const wishImpact = useMemo(() => {
     const priced = wishlist.filter((w) => Number(w.amount) > 0)
     const usd = priced.reduce(
-      (sum, w) => sum + expenseSpendableUsd(w, SETTINGS.usdToEgp),
+      (sum, w) => sum + expenseSpendableUsd(w, rate),
       0,
     )
     return { usd, priced: priced.length, unpriced: wishlist.length - priced.length }
-  }, [wishlist])
+  }, [wishlist, rate])
 
   /** What-if: every dream income arrives (EGP at the default rate). */
   const dreamsUsd = useMemo(
     () =>
-      dreams.reduce((sum, d) => sum + expenseSpendableUsd(d, SETTINGS.usdToEgp), 0),
-    [dreams],
+      dreams.reduce((sum, d) => sum + expenseSpendableUsd(d, rate), 0),
+    [dreams, rate],
   )
 
   const addExpense = (event) => {
@@ -336,7 +352,7 @@ function App() {
         ...draft,
         id: newId(),
         amount: Number(draft.amount),
-        usdRate: Number(draft.usdRate) || SETTINGS.usdToEgp,
+        usdRate: Number(draft.usdRate) || rate,
       },
     ])
     setDraft(emptyExpense())
@@ -418,7 +434,16 @@ function App() {
                 {RULE_FIELDS.map(({ key, label, format }) => (
                   <div key={key} className="rule-item">
                     <dt>{label}</dt>
-                    <dd>{formatRuleValue(key, SETTINGS[key], format)}</dd>
+                    <dd>
+                      {formatRuleValue(key, key === 'usdToEgp' ? rate : SETTINGS[key], format)}
+                      {key === 'usdToEgp' ? (
+                        <small className="rate-date">
+                          {liveRate.date
+                            ? ` · rate of ${liveRate.date}${liveRate.status === 'cached' ? ' (last saved)' : ''}`
+                            : ' · default (live rate unavailable)'}
+                        </small>
+                      ) : null}
+                    </dd>
                   </div>
                 ))}
               </dl>
@@ -508,7 +533,7 @@ function App() {
                     </div>
                   </dl>
                   <p className="wish-whatif-note">
-                    EGP at {SETTINGS.usdToEgp} per $1
+                    EGP at {rate} per $1
                     {wishImpact.unpriced > 0
                       ? ` · ${wishImpact.unpriced} item${wishImpact.unpriced > 1 ? 's' : ''} without a price not counted`
                       : ''}
@@ -649,7 +674,7 @@ function App() {
                 </button>
               </form>
               <p className="wish-whatif-note">
-                Added to spendable USD on its date · EGP at {SETTINGS.usdToEgp} per $1
+                Added to spendable USD on its date · EGP at {rate} per $1 (live) if still to come
               </p>
             </section>
 
@@ -753,9 +778,11 @@ function App() {
               <h2>Expenses &amp; withdrawals</h2>
               <span
                 className="rate-badge"
-                title="Every expense has its own USD price, set when you add it. USD items deduct from spendable USD directly; EGP items deduct amount ÷ price. Your gold reserve is never touched."
+                title={`Upcoming EGP expenses use today's live rate${
+                  liveRate.date ? ` (${liveRate.date})` : ' (offline: default rate)'
+                }; already-paid ones keep the rate they were paid at. Your gold reserve is never touched.`}
               >
-                Default USD price: {SETTINGS.usdToEgp} EGP
+                {liveRate.status === 'fallback' ? 'Default' : 'Live'} USD price: {rate} EGP
               </span>
             </div>
             {expenses.length > 0 ? (
@@ -796,13 +823,13 @@ function App() {
                     <b>{formatMoney(Number(expense.amount), expense.currency)}</b>
                     <small>
                       {expense.currency === 'EGP'
-                        ? `÷ ${expenseRate(expense, SETTINGS.usdToEgp)} = ${formatMoney(
-                            -expenseSpendableUsd(expense, SETTINGS.usdToEgp),
+                        ? `÷ ${rateFor(expense)} = ${formatMoney(
+                            -expenseSpendableUsd({ ...expense, usdRate: rateFor(expense) }),
                             'USD',
                           )}`
                         : `≈ ${formatMoney(
                             (Number(expense.amount) || 0) *
-                              expenseRate(expense, SETTINGS.usdToEgp),
+                              rateFor(expense),
                             'EGP',
                           )}`}
                     </small>
@@ -852,12 +879,12 @@ function App() {
                 </select>
               </label>
               <label>
-                USD price (EGP per $1, optional)
+                USD price paid (EGP per $1, past items only)
                 <input
                   type="number"
                   min="0"
                   step="0.01"
-                  placeholder={`Default: ${SETTINGS.usdToEgp}`}
+                  placeholder={`Live: ${rate}`}
                   value={draft.usdRate}
                   onChange={(e) => setDraft({ ...draft, usdRate: e.target.value })}
                 />
@@ -901,7 +928,7 @@ function App() {
                   Spendable USD impact:{' '}
                   <strong>
                     {formatMoney(
-                      -expenseSpendableUsd(draft, SETTINGS.usdToEgp),
+                      -expenseSpendableUsd({ ...draft, usdRate: rateFor(draft) }),
                       'USD',
                     )}
                   </strong>
@@ -909,7 +936,7 @@ function App() {
                     <>
                       {' '}
                       ({formatMoney(Number(draft.amount) || 0, 'EGP')} ÷{' '}
-                      {expenseRate(draft, SETTINGS.usdToEgp)})
+                      {rateFor(draft)})
                     </>
                   ) : null}
                 </p>
@@ -935,7 +962,7 @@ function App() {
         />
 
         <HomePlanner
-          settings={SETTINGS}
+          settings={liveSettings}
           startTotalUsd={projection.totalUsdEquivalent}
           weddingDate={SETTINGS.weddingDate}
           extraIncome={incomes}

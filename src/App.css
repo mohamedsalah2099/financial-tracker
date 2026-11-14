@@ -2135,3 +2135,9 @@ th.num {
     border-left: 1px solid #e2e8f0;
   }
 }
+
+.rate-date {
+  font-size: 0.72rem;
+  font-weight: 400;
+  color: #94a3b8;
+}

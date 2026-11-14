@@ -40,6 +40,14 @@ export function expenseRate(expense, fallbackRate) {
   return Number(expense.usdRate) || Number(fallbackRate) || 1
 }
 
+/**
+ * Rate for a money movement on `date` (YYYY-MM-DD): items already paid (on or before
+ * today) keep their own rate; anything still to come uses today's live rate.
+ */
+export function rateForDate(date, ownRate, liveRate, today) {
+  return liveRate && today && date > today ? liveRate : ownRate
+}
+
 export function expenseSpendableUsd(expense, usdToEgpRate) {
   const amount = Number(expense.amount) || 0
   if (expense.currency === 'USD') return amount
@@ -151,7 +159,7 @@ function normalizeCustomExpense(expense, fallbackRate) {
   }
 }
 
-export function expandCustomExpenses(customExpenses, weddingDate, fallbackRate) {
+export function expandCustomExpenses(customExpenses, weddingDate, fallbackRate, liveRate, today) {
   const wedding = parseDate(weddingDate)
   if (!wedding) return []
 
@@ -160,7 +168,9 @@ export function expandCustomExpenses(customExpenses, weddingDate, fallbackRate) 
     const base = normalizeCustomExpense(raw, fallbackRate)
     if (!base.recurring) {
       const on = parseDate(base.date)
-      if (on && on <= wedding) events.push({ ...base, id: raw.id })
+      if (on && on <= wedding) {
+        events.push({ ...base, id: raw.id, rate: rateForDate(base.date, base.rate, liveRate, today) })
+      }
       continue
     }
 
@@ -173,10 +183,12 @@ export function expandCustomExpenses(customExpenses, weddingDate, fallbackRate) 
     const capMonth = firstDayOfMonth(cap.getFullYear(), cap.getMonth())
 
     while (cursor <= capMonth) {
+      const date = formatDate(cursor)
       events.push({
         ...base,
         id: `${raw.id}-${monthKey(cursor)}`,
-        date: formatDate(cursor),
+        date,
+        rate: rateForDate(date, base.rate, liveRate, today),
         label: `${base.label} (${MONTH_NAMES[cursor.getMonth()]} ${cursor.getFullYear()})`,
       })
       cursor = addMonths(cursor, 1)
@@ -186,9 +198,10 @@ export function expandCustomExpenses(customExpenses, weddingDate, fallbackRate) 
   return events
 }
 
-/** One-off extra income; EGP is converted to spendable USD at the default rate. */
-export function buildIncomeEvents(extraIncome, rate) {
+/** One-off extra income; EGP is converted at the plan rate if received, else the live rate. */
+export function buildIncomeEvents(extraIncome, planRate, liveRate, today) {
   return extraIncome.map((income) => {
+    const rate = rateForDate(income.date, planRate, liveRate, today)
     const amount = Number(income.amount) || 0
     const isEgp = income.currency === 'EGP'
     const usd = isEgp ? egpExpenseToUsd(amount, rate) : amount
@@ -387,13 +400,17 @@ export function runProjection(
   let spendableUsd =
     (Number(settings.openingUsd) || 0) + (Number(settings.nbkUsd) || 0)
   const goldEgp = Number(settings.goldReserveEgp ?? settings.openingEgp) || 0
-  const rate = Number(settings.usdToEgp) || 1
-  // The gold's fixed USD value, if set; otherwise the EGP reserve at the plan rate.
+  // Past (already paid) items use their own / the plan rate; everything after today
+  // uses the live rate when one is given.
+  const planRate = Number(settings.usdToEgp) || 1
+  const rate = Number(settings.liveUsdToEgp) || planRate
+  const today = settings.today ?? formatDate(new Date())
+  // The gold's fixed USD value, if set; otherwise the EGP reserve at the live rate.
   const goldUsd = Number(settings.goldValueUsd) || goldEgp / rate
 
   const salaryEvents = buildSalaryEvents(settings, weddingDate)
-  const customEvents = expandCustomExpenses(customExpenses, weddingDate, rate)
-  const incomeEvents = buildIncomeEvents(extraIncome, rate)
+  const customEvents = expandCustomExpenses(customExpenses, weddingDate, planRate, rate, today)
+  const incomeEvents = buildIncomeEvents(extraIncome, planRate, rate, today)
   const timeline = mergeEvents(salaryEvents, [...incomeEvents, ...customEvents])
 
   const ledger = [
